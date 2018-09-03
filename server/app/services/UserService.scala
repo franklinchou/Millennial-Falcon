@@ -9,8 +9,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[UserServiceJanus])
 abstract class UserService()(implicit ec: ExecutionContext) {
 
-
   def findAllUsers: Future[List[UserModel]]
-
 
 }

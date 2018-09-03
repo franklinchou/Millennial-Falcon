@@ -7,7 +7,7 @@ import models.UserModel
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class UserServiceJanus @Inject()(userRepo: UserRepo[UserModel])
+class UserServiceJanus @Inject()(userRepo: UserRepo)
                                 (implicit ec: ExecutionContext) {
 
   def findAllUsers: Future[List[UserModel]] = {

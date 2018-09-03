@@ -15,7 +15,7 @@ object UserModel {
 }
 
 
-case class UserModel(id: StringContainer[ModelId],
+case class UserModel(id: StringContainer[ModelId] = Model.generateUUID[ModelId],
                      userName: StringContainer[ModelUserName],
                      createdAt: ZonedDateTime = DefaultTime,
                      updatedAt: ZonedDateTime = DefaultTime) extends Model

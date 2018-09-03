@@ -18,7 +18,7 @@ object JanusClient {
   val graph: JanusGraph = env match {
     case "prod" =>
       JanusGraphFactory
-        .build // TODO: Should use `open` to load typesafe configuration
+        .build  // TODO: Should use `open` to load typesafe configuration
         .set("storage.backend", backend)
         .set("storage.hostname", host)
         .open()
