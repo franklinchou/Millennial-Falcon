@@ -1,16 +1,24 @@
 package services
 
+import models.UserModel
 import org.scalatest.FunSpec
 import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.test.Injecting
+import org.mockito.Mockito.when
 
-class UserServiceJanusSpec extends FunSpec with MockitoSugar with GuiceOneAppPerTest with Injecting {
+import scala.concurrent.Future
+
+class UserServiceJanusSpec extends FunSpec with MockitoSugar {
+
+
+  val userServiceMock = mock[UserServiceJanus]
+
 
   describe("") {
 
-    it ("") {
 
+    it("") {
+
+      when(userServiceMock.findAllUsers).thenReturn(Future { List.empty[UserModel] })
 
     }
 

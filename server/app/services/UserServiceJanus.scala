@@ -1,7 +1,6 @@
 package services
 
 import com.google.inject.Inject
-import dao.repos.UserRepo
 import models.UserModel
 
 import scala.concurrent.{ExecutionContext, Future}
