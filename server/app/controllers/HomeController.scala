@@ -17,7 +17,7 @@ class HomeController @Inject()(cc: ControllerComponents,
 
     val json =
       Json.obj(
-        "application" -> "Millenial Falcon",
+        "application" -> "Millennial Falcon",
         "environment" -> config.get[String]("env")
       )
 

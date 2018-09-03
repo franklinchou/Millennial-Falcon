@@ -12,6 +12,7 @@ val janusVersion = "0.3.0"
 libraryDependencies ++= Seq(
   guice,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.mockito" % "mockito-core" % "2.7.22",
   "com.michaelpollmeier" %% "gremlin-scala" % "3.3.3.3",
   "com.datastax.cassandra" % "cassandra-driver-core" % "3.0.0",
   "ai.x" %% "play-json-extensions" % "0.10.0",
