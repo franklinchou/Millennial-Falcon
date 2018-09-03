@@ -3,10 +3,13 @@ package dao.repos
 import lib.StringContainer
 import models.UserModel
 import models.fields.ModelId
+import org.janusgraph.core.JanusGraph
 
 import scala.concurrent.Future
 
-class UserRepo extends JanusRepo[UserModel] {
+trait UserRepo extends JanusRepo[UserModel] {
+  
+  val modelType: String = "User"
 
   def create(record: UserModel): Future[Boolean] = ???
 
