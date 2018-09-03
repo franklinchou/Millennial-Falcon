@@ -6,7 +6,7 @@ import models.UserModel
 import scala.concurrent.{ExecutionContext, Future}
 
 
-@ImplementedBy(classOf[UserServiceCassandra])
+@ImplementedBy(classOf[UserServiceJanus])
 abstract class UserService()(implicit ec: ExecutionContext) {
 
 

@@ -4,7 +4,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.Configuration
-import play.api.libs.json.{JsString, JsValue, Json}
+import play.api.libs.json.JsValue
 import play.api.test.Helpers._
 import play.api.test._
 
