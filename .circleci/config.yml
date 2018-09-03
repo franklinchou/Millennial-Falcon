@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  scala-test:
+    docker:
+      - image: hseeberger/scala-sbt:8u181_2.12.6_1.2.1
+    steps:
+      - checkout
+      - run:
+          name: run-scala-tests
+          command: |
+            cd server
+            sbt clean compile
+            sbt test
+workflows:
+  version: 2
+  test_all:
+    jobs:
+      - scala-test
