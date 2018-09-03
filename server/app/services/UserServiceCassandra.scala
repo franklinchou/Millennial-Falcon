@@ -14,6 +14,4 @@ class UserServiceCassandra @Inject()(userRepo: UserRepo[UserModel])
     Future { List.empty[UserModel] }
   }
 
-
-
 }

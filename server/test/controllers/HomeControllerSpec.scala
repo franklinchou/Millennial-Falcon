@@ -21,7 +21,6 @@ class HomeControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
       status(health) mustBe OK
       contentType(health) mustBe Some("application/json")
 
-
       val content: JsValue = contentAsJson(health)
       val applicationName = (content \ "application").validate[String].getOrElse("")
       applicationName mustBe "Millennial Falcon"
