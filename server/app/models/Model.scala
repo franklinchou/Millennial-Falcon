@@ -23,6 +23,14 @@ object Model {
 
   val DefaultTime = ZonedDateTime.now(ZoneOffset.UTC)
 
+  val Id = "id"
+  val Name = "name"
+  val Type = "model-type"
+
+  val UserType = "users"
+  val UserGroupType = "user-groups"
+  val ProductType = "products"
+
   def generateUUID[M <: AnyVal]: StringContainer[M] = {
     val uuid = UUID.randomUUID()
     StringContainer.apply[M](uuid.toString)
