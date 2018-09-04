@@ -33,7 +33,6 @@ object JanusClient {
     * Set up graph
     */
   var mgmt = graph.openManagement()
-
   JanusClientUtils.setUp
-
+  
 }
