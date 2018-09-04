@@ -1,7 +1,6 @@
 package services
 
 import com.google.inject.Inject
-import dao.JanusClient
 import models.UserModel
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -12,12 +11,8 @@ class UserServiceJanus @Inject()()
 
   def findAllUsers: Future[List[UserModel]] = {
 
-
-
+    // TODO
     Future { List.empty[UserModel] }
-
-
-
 
   }
 
