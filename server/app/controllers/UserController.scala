@@ -13,10 +13,12 @@ class UserController @Inject()(cc: ControllerComponents,
                               (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def index() = Action.async { implicit rq: Request[AnyContent] =>
-    userService.findAllUsers.map { models =>
-      val json = Json.toJson(models)
-      Ok(json)
-    }
+    userService
+      .findAllUsers
+      .map { models =>
+        val json = Json.toJson(models)
+        Ok(json)
+      }
   }
 
 }

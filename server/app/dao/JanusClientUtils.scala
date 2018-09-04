@@ -13,7 +13,7 @@ object JanusClientUtils {
 
 
   // Set up the Janus graph
-  protected[JanuClient] def setUp: Unit = {
+  def setUp: Unit = {
 
     mgmt.makePropertyKey(Model.Id).cardinality(Cardinality.SINGLE).dataType(classOf[UUID]).make()
     mgmt.makePropertyKey(Model.Name).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
