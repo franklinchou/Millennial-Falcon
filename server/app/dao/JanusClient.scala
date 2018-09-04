@@ -37,11 +37,8 @@ object JanusClient {
 
   /**
     * Set up graph
-    *
-    *
     */
   var mgmt = graph.openManagement()
-
 
   mgmt.makePropertyKey(Model.Id).cardinality(Cardinality.SINGLE).dataType(classOf[UUID]).make()
   mgmt.makePropertyKey(Model.Name).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
@@ -57,7 +54,6 @@ object JanusClient {
     }
 
   mgmt.commit()  // write to graph
-
 
   graph.openManagement()
 
@@ -75,24 +71,57 @@ object JanusClient {
       "type-index",
       "id-type-index",
       "type-name-index",
-      "clients-by-name",
-      "users-by-name",
-      "features-by-name"
+      "clients-by-name-index",
+      "users-by-name-index",
+      "features-by-name-index"
     )
 
+  // region Build indices
 
   mgmt.buildIndex("id-index", classOf[Vertex]).addKey(idProperty).unique().buildCompositeIndex()
   mgmt.buildIndex("type-index", classOf[Vertex]).addKey(typeProperty).buildCompositeIndex()
-  mgmt.buildIndex("id-type-index", classOf[Vertex]).addKey(idProperty).addKey(typeProperty).unique().buildCompositeIndex()
-  mgmt.buildIndex("type-name-index", classOf[Vertex]).addKey(typeProperty).addKey(nameProperty).buildCompositeIndex()
 
 
+  mgmt
+    .buildIndex("id-type-index", classOf[Vertex])
+    .addKey(idProperty).addKey(typeProperty)
+    .unique()
+    .buildCompositeIndex()
 
-  mgmt.buildIndex("clients-by-name", classOf[Vertex]).addKey(typeProperty).addKey(nameProperty).indexOnly(userGroup).unique().buildCompositeIndex()
-  mgmt.buildIndex("users-by-name", classOf[Vertex]).addKey(typeProperty).addKey(nameProperty).indexOnly(user).unique().buildCompositeIndex()
-  mgmt.buildIndex("features-by-name", classOf[Vertex]).addKey(typeProperty).addKey(nameProperty).indexOnly(product).unique().buildCompositeIndex()
+
+  mgmt
+    .buildIndex("type-name-index", classOf[Vertex])
+    .addKey(typeProperty)
+    .addKey(nameProperty)
+    .buildCompositeIndex()
+
+  mgmt
+    .buildIndex("clients-by-name-index", classOf[Vertex])
+    .addKey(typeProperty)
+    .addKey(nameProperty)
+    .indexOnly(userGroup)
+    .unique()
+    .buildCompositeIndex()
+
+  mgmt
+    .buildIndex("users-by-name-index", classOf[Vertex])
+    .addKey(typeProperty)
+    .addKey(nameProperty)
+    .indexOnly(user)
+    .unique()
+    .buildCompositeIndex()
+
+  mgmt
+    .buildIndex("features-by-name-index", classOf[Vertex])
+    .addKey(typeProperty)
+    .addKey(nameProperty)
+    .indexOnly(product)
+    .unique()
+    .buildCompositeIndex()
 
   mgmt.commit()
+
+  // endregion
 
   indexLabels.par.foreach { il =>
     ManagementSystem.awaitGraphIndexStatus(graph, il).call()
@@ -104,7 +133,6 @@ object JanusClient {
   indexLabels.par.foreach { il =>
     mgmt.updateIndex(mgmt.getGraphIndex(il), SchemaAction.REINDEX).get()
   }
-
 
   mgmt.commit()
 
