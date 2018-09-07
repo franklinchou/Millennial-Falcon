@@ -1,6 +1,6 @@
 package controllers
 
-import dao.JanusClient.graph
+import dao.JanusClientUtils
 import javax.inject._
 import play.api._
 import play.api.libs.json.Json
@@ -16,14 +16,16 @@ class HomeController @Inject()(cc: ControllerComponents,
 
   def health() = Action { implicit request: Request[AnyContent] =>
 
-    val janus = if (graph.isOpen) "online" else "offline"
+    val env =  config.get[String]("env")
+
+    val janusConnectionStatus = JanusClientUtils.whichGraph(env).isOpen
 
     val json =
       Json.obj(
         "application" -> "Millennial Falcon",
         "environment" -> config.get[String]("env"),
         // "cassandra" -> cassandra
-        "janus" -> janus
+        "janus" -> { if (janusConnectionStatus) "online" else "offline" }
       )
 
     Ok(json)

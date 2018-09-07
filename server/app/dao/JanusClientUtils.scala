@@ -2,18 +2,37 @@ package dao
 
 import java.util.UUID
 
-import dao.JanusClient.{graph, mgmt}
+import dao.JanusClient._
 import models.Model
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import org.janusgraph.core.Cardinality
+import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory}
 import org.janusgraph.core.schema.SchemaAction
 import org.janusgraph.graphdb.database.management.ManagementSystem
 
 object JanusClientUtils {
 
+  val testConfig = JanusGraphFactory.open("inmemory")
+
+  def whichGraph(env: String): JanusGraph = {
+    env match {
+      case "prod" =>
+        JanusGraphFactory
+          .build // TODO: Should use `open` to load typesafe configuration
+          .set("storage.backend", backend)
+          .set("storage.hostname", host)
+          .open()
+      case "test" =>
+        testConfig
+      case _ =>
+        testConfig
+    }
+  }
+
 
   // Set up the Janus graph
-  def setUp: Unit = {
+  def setUp(jg: JanusGraph): Unit = {
+
+    var mgmt = jg.openManagement()
 
     mgmt.makePropertyKey(Model.Id).cardinality(Cardinality.SINGLE).dataType(classOf[UUID]).make()
     mgmt.makePropertyKey(Model.Name).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
@@ -30,7 +49,7 @@ object JanusClientUtils {
 
     mgmt.commit()  // write to graph
 
-    graph.openManagement()
+    mgmt = jg.openManagement()
 
     val idProperty = mgmt.getPropertyKey(Model.Id)
     val nameProperty = mgmt.getPropertyKey(Model.Name)
@@ -99,10 +118,10 @@ object JanusClientUtils {
     // endregion
 
     indexLabels.par.foreach { il =>
-      ManagementSystem.awaitGraphIndexStatus(graph, il).call()
+      ManagementSystem.awaitGraphIndexStatus(jg, il).call()
     }
 
-    mgmt = graph.openManagement()
+    mgmt = jg.openManagement()
 
 
     indexLabels.par.foreach { il =>
