@@ -11,7 +11,7 @@ import org.janusgraph.graphdb.database.management.ManagementSystem
 
 object JanusClientUtils {
 
-  val testConfig = JanusGraphFactory.open("inmemory")
+  val testConfig: JanusGraph = JanusGraphFactory.open("inmemory")
 
   def whichGraph(env: String): JanusGraph = {
     env match {
@@ -49,7 +49,7 @@ object JanusClientUtils {
 
     mgmt.commit()  // write to graph
 
-    mgmt = jg.openManagement()
+    mgmt = jg.openManagement()  // re-assignment in order for "open management" command to take
 
     val idProperty = mgmt.getPropertyKey(Model.Id)
     val nameProperty = mgmt.getPropertyKey(Model.Name)
@@ -65,7 +65,7 @@ object JanusClientUtils {
         "type-index",
         "id-type-index",
         "type-name-index",
-        "clients-by-name-index",
+        "groups-by-name-index", // user-groups by name
         "users-by-name-index",
         "features-by-name-index"
       )
@@ -90,7 +90,7 @@ object JanusClientUtils {
       .buildCompositeIndex()
 
     mgmt
-      .buildIndex("clients-by-name-index", classOf[Vertex])
+      .buildIndex("groups-by-name-index", classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(userGroup)
