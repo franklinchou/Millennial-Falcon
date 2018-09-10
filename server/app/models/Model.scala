@@ -27,9 +27,9 @@ object Model {
   val Name = "name"
   val Type = "model-type"
 
-  val UserType = "users"
-  val UserGroupType = "user-groups"
-  val ProductType = "products"
+  val UserType = "user"
+  val UserGroupType = "user-group"
+  val ProductType = "product"
 
   def generateUUID[M <: AnyVal]: StringContainer[M] = {
     val uuid = UUID.randomUUID()

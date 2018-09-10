@@ -5,8 +5,8 @@ import java.util.UUID
 import dao.JanusClient._
 import models.Model
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory}
 import org.janusgraph.core.schema.SchemaAction
+import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory}
 import org.janusgraph.graphdb.database.management.ManagementSystem
 
 object JanusClientUtils {
@@ -39,13 +39,8 @@ object JanusClientUtils {
     mgmt.makePropertyKey(Model.Type).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
 
     keys
-      .flatMap { k =>
-        val vertexLabel = mgmt.getVertexLabel(k)
-        Option(vertexLabel)
-      }
-      .foreach { vl =>
-        mgmt.makeVertexLabel(vl.toString).make()
-      }
+      .filter(k => Option(mgmt.getVertexLabel(k)).isEmpty)
+      .foreach(vl => mgmt.makeVertexLabel(vl.toString).make())
 
     mgmt.commit()  // write to graph
 
@@ -59,16 +54,6 @@ object JanusClientUtils {
     val userGroup = mgmt.getVertexLabel(Model.UserGroupType)
     val product = mgmt.getVertexLabel(Model.ProductType)
 
-    val indexLabels =
-      Set[String](
-        "id-index",
-        "type-index",
-        "id-type-index",
-        "type-name-index",
-        "groups-by-name-index", // user-groups by name
-        "users-by-name-index",
-        "features-by-name-index"
-      )
 
     // region Build indices
 
@@ -106,7 +91,7 @@ object JanusClientUtils {
       .buildCompositeIndex()
 
     mgmt
-      .buildIndex("features-by-name-index", classOf[Vertex])
+      .buildIndex("products-by-name-index", classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(product)
@@ -117,14 +102,14 @@ object JanusClientUtils {
 
     // endregion
 
-    indexLabels.par.foreach { il =>
+    indexKeys.foreach { il =>
       ManagementSystem.awaitGraphIndexStatus(jg, il).call()
     }
 
     mgmt = jg.openManagement()
 
 
-    indexLabels.par.foreach { il =>
+    indexKeys.foreach { il =>
       mgmt.updateIndex(mgmt.getGraphIndex(il), SchemaAction.REINDEX).get()
     }
 

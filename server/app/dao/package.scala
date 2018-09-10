@@ -1,14 +1,41 @@
+import models.Model
+
 package object dao {
-
-  val User = "user"
-  val UserGroup = "user-group"  // equivalent to "client"
-
 
   // TODO Should be of type StringContainer[Key]
   val keys: Set[String] = {
     Set[String](
-      User,
-      UserGroup
+      Model.UserType,
+      Model.UserGroupType,
+      Model.ProductType
+    )
+  }
+
+  val idIndex = "id-index"
+
+  val typeIndex = "type-index"
+
+  val typeIdIndex = "type-id-index"
+
+  val typeNameIndex = "type-name-index"
+
+  // Find a user-group by name
+  val groupNameIndex = "group-name-index"
+
+  val userNameIndex = "user-name-index"
+
+  val productNameIndex = "product-name-index"
+
+
+  val indexKeys: Set[String] = {
+    Set[String](
+      idIndex,
+      typeIndex,
+      typeIdIndex,
+      typeNameIndex,
+      groupNameIndex,
+      userNameIndex,
+      productNameIndex
     )
   }
 
