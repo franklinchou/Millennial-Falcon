@@ -7,6 +7,11 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.6"
 
+/**
+  * Latest version = 0.3.0, but results in a `ClassNotFoundException` with
+  * `tinkerpop.server.GraphManager`. This appears to be known and fixed; waiting
+  * on bump to 0.3.0+
+  */
 val janusVersion = "0.2.1"
 
 libraryDependencies ++= Seq(
@@ -19,7 +24,6 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "2.7.22",
   // "com.datastax.cassandra" % "cassandra-driver-core" % "3.0.0",
   "ai.x" %% "play-json-extensions" % "0.10.0"
-  // "org.slf4j" % "slf4j-simple" % "1.7.25"
 )
 
 resolvers ++= Seq(

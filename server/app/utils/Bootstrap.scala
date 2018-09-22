@@ -22,6 +22,10 @@ object Bootstrap extends App {
   // Main
   setUp()
 
-  println(jg.V().has(Model.Name, "Rienzi"))
-  
+  println(jg.V().has(Model.Name, "Rienzi").valueMap())
+
+  // println(jg.V().has(Model.Name, "potato"))
+
+  System.exit(0)
+
 }
