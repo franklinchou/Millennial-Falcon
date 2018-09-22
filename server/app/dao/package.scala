@@ -15,7 +15,7 @@ package object dao {
 
   val typeIndex = "type-index"
 
-  val typeIdIndex = "type-id-index"
+  val idTypeIndex = "id-type-index"
 
   val typeNameIndex = "type-name-index"
 
@@ -31,7 +31,7 @@ package object dao {
     Set[String](
       idIndex,
       typeIndex,
-      typeIdIndex,
+      idTypeIndex,
       typeNameIndex,
       groupNameIndex,
       userNameIndex,

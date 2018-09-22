@@ -13,7 +13,6 @@ object Bootstrap extends App {
 
   val appBldr: Application = new GuiceApplicationBuilder().build
 
-
   val mockUser1 = UserModel(userName = StringContainer[ModelUserName]("Franklin"))
   val mockUser2 = UserModel(userName = StringContainer[ModelUserName]("Rienzi"))
   val mockUsers = Seq(mockUser1, mockUser2)
@@ -24,6 +23,5 @@ object Bootstrap extends App {
   setUp()
 
   println(jg.V().has(Model.Name, "Rienzi"))
-
-
+  
 }

@@ -9,7 +9,7 @@ import org.janusgraph.core.schema.SchemaAction
 import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory}
 import org.janusgraph.graphdb.database.management.ManagementSystem
 
-object JanusClientUtils {
+object EntitlementGraph {
 
   val testConfig: JanusGraph = JanusGraphFactory.open("inmemory")
 
@@ -47,8 +47,8 @@ object JanusClientUtils {
     mgmt = jg.openManagement()  // re-assignment in order for "open management" command to take
 
     val idProperty = mgmt.getPropertyKey(Model.Id)
-    val nameProperty = mgmt.getPropertyKey(Model.Name)
     val typeProperty = mgmt.getPropertyKey(Model.Type)
+    val nameProperty = mgmt.getPropertyKey(Model.Name)
 
     val user = mgmt.getVertexLabel(Model.UserType)
     val userGroup = mgmt.getVertexLabel(Model.UserGroupType)
@@ -57,41 +57,52 @@ object JanusClientUtils {
 
     // region Build indices
 
-    mgmt.buildIndex("id-index", classOf[Vertex]).addKey(idProperty).unique().buildCompositeIndex()
-    mgmt.buildIndex("type-index", classOf[Vertex]).addKey(typeProperty).buildCompositeIndex()
-
-
     mgmt
-      .buildIndex("id-type-index", classOf[Vertex])
-      .addKey(idProperty).addKey(typeProperty)
+      .buildIndex(dao.idIndex, classOf[Vertex])
+      .addKey(idProperty)
       .unique()
       .buildCompositeIndex()
 
+    mgmt
+      .buildIndex(dao.typeIndex, classOf[Vertex])
+      .addKey(typeProperty)
+      .buildCompositeIndex()
 
     mgmt
-      .buildIndex("type-name-index", classOf[Vertex])
+      .buildIndex(dao.idTypeIndex, classOf[Vertex])
+      .addKey(typeProperty)
+      .addKey(idProperty)
+      .unique()
+      .buildCompositeIndex()
+
+    mgmt
+      .buildIndex(dao.typeNameIndex, classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .buildCompositeIndex()
 
+
+    // Index user-group by name
     mgmt
-      .buildIndex("groups-by-name-index", classOf[Vertex])
+      .buildIndex(dao.groupNameIndex, classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(userGroup)
       .unique()
       .buildCompositeIndex()
 
+    // Index users by name
     mgmt
-      .buildIndex("users-by-name-index", classOf[Vertex])
+      .buildIndex(dao.userNameIndex, classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(user)
       .unique()
       .buildCompositeIndex()
 
+    // Index products by name
     mgmt
-      .buildIndex("products-by-name-index", classOf[Vertex])
+      .buildIndex(dao.productNameIndex, classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(product)
@@ -107,7 +118,6 @@ object JanusClientUtils {
     }
 
     mgmt = jg.openManagement()
-
 
     indexKeys.foreach { il =>
       mgmt.updateIndex(mgmt.getGraphIndex(il), SchemaAction.REINDEX).get()

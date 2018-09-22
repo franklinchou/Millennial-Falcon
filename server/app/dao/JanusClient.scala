@@ -13,9 +13,9 @@ object JanusClient {
 
   val env = ConfigFactory.load.getString("env")
 
-  private val graph = JanusClientUtils.whichGraph(env)
+  private val graph = EntitlementGraph.whichGraph(env)
 
-  JanusClientUtils.setUp(graph)
+  EntitlementGraph.setUp(graph)
 
   val jg: GraphTraversalSource = graph.traversal()
 
