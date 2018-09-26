@@ -4,6 +4,7 @@ import java.time.{ZoneOffset, ZonedDateTime}
 import java.util.UUID
 
 import lib.StringContainer
+import models.Model.DefaultTime
 import models.fields.ModelId
 
 
@@ -12,7 +13,11 @@ import models.fields.ModelId
   */
 trait Model {
 
-  val id: StringContainer[ModelId]
+  val id: StringContainer[ModelId] = Model.generateUUID[ModelId]
+
+  val createdAt: ZonedDateTime = DefaultTime
+
+  val updatedAt: ZonedDateTime = DefaultTime
 
   lazy val modelType: String = getClass.getSimpleName
 

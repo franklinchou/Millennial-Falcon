@@ -1,11 +1,8 @@
 package models
 
-import java.time.ZonedDateTime
-
 import ai.x.play.json.Jsonx
 import lib.StringContainer
-import models.Model.DefaultTime
-import models.fields.{ModelId, ModelUserName}
+import models.fields.ModelUserName
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
@@ -28,7 +25,4 @@ object UserModel {
 }
 
 
-case class UserModel(id: StringContainer[ModelId] = Model.generateUUID[ModelId],
-                     userName: StringContainer[ModelUserName],
-                     createdAt: ZonedDateTime = DefaultTime,
-                     updatedAt: ZonedDateTime = DefaultTime) extends Model
+case class UserModel(userName: StringContainer[ModelUserName]) extends Model

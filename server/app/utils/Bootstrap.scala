@@ -11,7 +11,7 @@ object Bootstrap extends App {
 
   // Create a new application context
 
-  val appBldr: Application = new GuiceApplicationBuilder().build
+  val appBuilder: Application = new GuiceApplicationBuilder().build
 
   val mockUser1 = UserModel(userName = StringContainer[ModelUserName]("Franklin"))
   val mockUser2 = UserModel(userName = StringContainer[ModelUserName]("Rienzi"))
