@@ -1,5 +1,7 @@
 package models
 
+import java.util.NoSuchElementException
+
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.fields.ModelUserName
@@ -17,9 +19,6 @@ class UserModelSpec extends FunSpec {
 
   private def setUp(): Unit = mockUsers.foreach(mu => UserModel.add(mu, jg))
 
-  // Main
-  setUp()
-
   describe("A User Model") {
     it("should insert into Janus Graph") {
 
@@ -27,7 +26,7 @@ class UserModelSpec extends FunSpec {
         * In order to use indexing, query must contain vertex label.
         * This query will use the "userNameComposite" index ("user-name-index").
         */
-      val expected =
+      lazy val expected =
         jg
           .V()
           .hasLabel(Model.UserType)
@@ -36,6 +35,12 @@ class UserModelSpec extends FunSpec {
           .property(Model.Name)
           .value()
           .toString
+
+      assertThrows[NoSuchElementException] {
+        expected
+      }
+
+      setUp()
 
       assert(expected == "user1")
     }
