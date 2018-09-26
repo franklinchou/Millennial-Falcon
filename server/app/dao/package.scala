@@ -11,31 +11,31 @@ package object dao {
     )
   }
 
-  val idIndex = "id-index"
+  val byIdComposite = "id-index"
 
-  val typeIndex = "type-index"
+  val byTypeComposite = "type-index"
 
-  val idTypeIndex = "id-type-index"
+  val byIdTypeComposite = "id-type-index"
 
-  val typeNameIndex = "type-name-index"
+  val byTypeNameComposite = "type-name-index"
 
   // Find a user-group by name
-  val groupNameIndex = "group-name-index"
+  val byGroupNameComposite = "group-name-index"
 
-  val userNameIndex = "user-name-index"
+  val userNameComposite = "user-name-index"
 
-  val productNameIndex = "product-name-index"
+  val productNameComposite = "product-name-index"
 
 
   val indexKeys: Set[String] = {
     Set[String](
-      idIndex,
-      typeIndex,
-      idTypeIndex,
-      typeNameIndex,
-      groupNameIndex,
-      userNameIndex,
-      productNameIndex
+      byIdComposite,
+      byTypeComposite,
+      byIdTypeComposite,
+      byTypeNameComposite,
+      byGroupNameComposite,
+      userNameComposite,
+      productNameComposite
     )
   }
 

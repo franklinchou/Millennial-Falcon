@@ -23,9 +23,14 @@ class UserModelSpec extends FunSpec {
   describe("A User Model") {
     it("should insert into Janus Graph") {
 
+      /**
+        * In order to use indexing, query must contain vertex label.
+        * This query will use the "userNameComposite" index ("user-name-index").
+        */
       val expected =
         jg
           .V()
+          .hasLabel(Model.UserType)
           .has(Model.Name, "user1")
           .next()
           .property(Model.Name)
