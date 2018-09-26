@@ -20,12 +20,23 @@ object ClearGraph extends App {
       mgmt.updateIndex(index, SchemaAction.DISABLE_INDEX).get()
     }
 
+  mgmt.commit()  // commit index status as disabled
+  graph.tx().commit()
+
   // block until all the indices are disabled
   indices.foreach { k =>
     ManagementSystem.awaitGraphIndexStatus(graph, k).status(SchemaStatus.DISABLED).call()
   }
 
+  mgmt = graph.openManagement()
+
+  indices.foreach { k =>
+    val index = mgmt.getGraphIndex(k)
+    mgmt.updateIndex(index, SchemaAction.REMOVE_INDEX)
+  }
+
   mgmt.commit()  // commit index status as disabled
+  graph.tx().commit()
 
   System.exit(0)
 
