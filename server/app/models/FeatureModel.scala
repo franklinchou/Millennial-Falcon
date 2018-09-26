@@ -1,7 +1,6 @@
 package models
 
 import lib.StringContainer
-import models.fields.{Feature, ModelId}
+import models.fields.Feature
 
-case class FeatureModel(id: StringContainer[ModelId] = Model.generateUUID[ModelId],
-                        feature: StringContainer[Feature]) extends Model
+case class FeatureModel(feature: StringContainer[Feature]) extends Model

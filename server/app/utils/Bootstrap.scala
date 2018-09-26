@@ -13,8 +13,8 @@ object Bootstrap extends App {
 
   val appBuilder: Application = new GuiceApplicationBuilder().build
 
-  val mockUser1 = UserModel(userName = StringContainer[ModelUserName]("Franklin"))
-  val mockUser2 = UserModel(userName = StringContainer[ModelUserName]("Rienzi"))
+  val mockUser1 = UserModel(userName = StringContainer[ModelUserName]("user1"))
+  val mockUser2 = UserModel(userName = StringContainer[ModelUserName]("user2"))
   val mockUsers = Seq(mockUser1, mockUser2)
 
   private def setUp(): Unit = mockUsers.foreach(mu => UserModel.add(mu, jg))
@@ -22,9 +22,7 @@ object Bootstrap extends App {
   // Main
   setUp()
 
-  println(jg.V().has(Model.Name, "Rienzi").valueMap())
-
-  // println(jg.V().has(Model.Name, "potato"))
+  println(jg.V().has(Model.Name, "user2").valueMap())
 
   System.exit(0)
 
