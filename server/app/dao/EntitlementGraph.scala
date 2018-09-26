@@ -5,7 +5,7 @@ import java.util.UUID
 import dao.JanusClient._
 import models.Model
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import org.janusgraph.core.schema.{ConsistencyModifier, SchemaAction}
+import org.janusgraph.core.schema.SchemaAction
 import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory, VertexLabel}
 import org.janusgraph.graphdb.database.management.ManagementSystem
 
@@ -53,7 +53,7 @@ object EntitlementGraph {
     val nameProperty = mgmt.getPropertyKey(Model.Name)
 
     val userLabel: VertexLabel = mgmt.getVertexLabel(Model.UserType)
-    val groupLabel = mgmt.getVertexLabel(Model.UserGroupType)
+    val groupLabel = mgmt.getVertexLabel(Model.GroupType)
     val productLabel = mgmt.getVertexLabel(Model.ProductType)
 
 

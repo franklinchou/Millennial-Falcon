@@ -6,7 +6,7 @@ package object dao {
   val keys: Set[String] = {
     Set[String](
       Model.UserType,
-      Model.UserGroupType,
+      Model.GroupType,
       Model.ProductType
     )
   }

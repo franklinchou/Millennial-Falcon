@@ -33,7 +33,7 @@ object Model {
   val Type = "model-type"
 
   val UserType = "user"
-  val UserGroupType = "user-group"
+  val GroupType = "group"
   val ProductType = "product"
 
   def generateUUID[M <: AnyVal]: StringContainer[M] = {
