@@ -27,7 +27,7 @@ package object dao {
   val productNameComposite = "product-name-index"
 
 
-  val indexKeys: Set[String] = {
+  val indices: Set[String] = {
     Set[String](
       byIdComposite,
       byTypeComposite,

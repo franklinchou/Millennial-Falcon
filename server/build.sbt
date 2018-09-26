@@ -7,12 +7,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.6"
 
-/**
-  * Latest version = 0.3.0, but results in a `ClassNotFoundException` with
-  * `tinkerpop.server.GraphManager`. This appears to be known and fixed; waiting
-  * on bump to 0.3.0+
-  */
-val janusVersion = "0.2.1"
+val janusVersion = "0.3.0"
 
 libraryDependencies ++= Seq(
   guice,
@@ -22,15 +17,8 @@ libraryDependencies ++= Seq(
   "org.janusgraph" % "janusgraph-cql" % janusVersion,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.mockito" % "mockito-core" % "2.7.22",
-  // "com.google.guava" % "guava" % "17.0",
   "com.datastax.cassandra" % "cassandra-driver-core" % "3.5.0",
   "ai.x" %% "play-json-extensions" % "0.10.0"
-)
-
-resolvers ++= Seq(
-  Resolver.mavenLocal,
-  "Oracle Maven Repository" at "http://download.oracle.com/maven/",
-  "Sonatype OSS" at "https://oss.sonatype.org/content/repositories/public"
 )
 
 

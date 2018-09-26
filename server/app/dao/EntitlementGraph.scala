@@ -31,7 +31,6 @@ object EntitlementGraph {
     mgmt.makePropertyKey(Model.Name).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
     mgmt.makePropertyKey(Model.Type).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
 
-
     // Make vertex labels for all keys
     keys
       .filter(k => Option(mgmt.getVertexLabel(k)).isEmpty)
@@ -107,13 +106,14 @@ object EntitlementGraph {
 
     // endregion
 
-    indexKeys.foreach { il =>
-      ManagementSystem.awaitGraphIndexStatus(jg, il).call()
+    // Block until the index is ready
+    indices.foreach { k =>
+      ManagementSystem.awaitGraphIndexStatus(jg, k).call()
     }
 
     mgmt = jg.openManagement()
 
-    indexKeys.foreach { il =>
+    indices.foreach { il =>
       mgmt.updateIndex(mgmt.getGraphIndex(il), SchemaAction.REINDEX).get()
     }
 
