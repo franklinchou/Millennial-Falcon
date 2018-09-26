@@ -26,7 +26,7 @@ trait Model {
 
 object Model {
 
-  val DefaultTime = ZonedDateTime.now(ZoneOffset.UTC)
+  val DefaultTime: ZonedDateTime = ZonedDateTime.now(ZoneOffset.UTC)
 
   val Id = "id"
   val Name = "name"

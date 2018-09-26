@@ -7,13 +7,9 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 @Singleton
 object JanusClient {
 
-  val backend = ConfigFactory.load.getString("storage.backend")
+  val env: String = ConfigFactory.load.getString("env")
 
-  val host = ConfigFactory.load.getString("storage.hostname")
-
-  val env = ConfigFactory.load.getString("env")
-
-  private val graph = EntitlementGraph.whichGraph(env)
+  private val graph = EntitlementGraph.graph
 
   EntitlementGraph.setUp(graph)
 

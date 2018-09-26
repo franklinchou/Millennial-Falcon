@@ -2,7 +2,7 @@ package dao
 
 import java.util.UUID
 
-import dao.JanusClient._
+import com.typesafe.config.ConfigFactory
 import models.Model
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import org.janusgraph.core.schema.SchemaAction
@@ -11,23 +11,16 @@ import org.janusgraph.graphdb.database.management.ManagementSystem
 
 object EntitlementGraph {
 
-  val testConfig: JanusGraph = JanusGraphFactory.open("inmemory")
+  val backend = ConfigFactory.load.getString("storage.backend")
 
-  def whichGraph(env: String): JanusGraph = {
-    env match {
-      case "prod" =>
-        JanusGraphFactory
-          .build
-          .set("storage.backend", backend)
-          .set("storage.hostname", host)
-          .open()
-      case "test" =>
-        testConfig
-      case _ =>
-        testConfig
-    }
-  }
+  val host = ConfigFactory.load.getString("storage.hostname")
 
+  val graph: JanusGraph =
+    JanusGraphFactory
+      .build
+      .set("storage.backend", backend)
+      .set("storage.hostname", host)
+      .open()
 
   // Set up the Janus graph
   def setUp(jg: JanusGraph): Unit = {

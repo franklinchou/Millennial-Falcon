@@ -16,9 +16,7 @@ class HomeController @Inject()(cc: ControllerComponents,
 
   def health() = Action { implicit request: Request[AnyContent] =>
 
-    val env =  config.get[String]("env")
-
-    val janusConnectionStatus = EntitlementGraph.whichGraph(env).isOpen
+    val janusConnectionStatus = EntitlementGraph.graph.isOpen
 
     val json =
       Json.obj(
