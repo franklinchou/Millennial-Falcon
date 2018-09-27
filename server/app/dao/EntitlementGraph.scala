@@ -27,11 +27,19 @@ object EntitlementGraph {
 
     var mgmt = jg.openManagement()
 
-    mgmt.makePropertyKey(Model.Id).cardinality(Cardinality.SINGLE).dataType(classOf[UUID]).make()
-    mgmt.makePropertyKey(Model.Name).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
-    mgmt.makePropertyKey(Model.Type).cardinality(Cardinality.SINGLE).dataType(classOf[String]).make()
+    val properties =
+      Map(
+        Model.Id -> classOf[UUID],
+        Model.Name -> classOf[String],
+        Model.Type -> classOf[String]
+      )
 
-    // Make vertex labels for all keys
+    // Make property keys for any key that doesn't already exist
+    properties
+      .filter(pk => Option(mgmt.getPropertyKey(pk._1)).isEmpty)
+      .foreach(pk => mgmt.makePropertyKey(pk._1).cardinality(Cardinality.SINGLE).dataType(pk._2).make())
+
+    // Make vertex labels for any key that doesn't already exist
     keys
       .filter(k => Option(mgmt.getVertexLabel(k)).isEmpty)
       .foreach(vl => mgmt.makeVertexLabel(vl.toString).make())
@@ -75,8 +83,7 @@ object EntitlementGraph {
       .addKey(nameProperty)
       .buildCompositeIndex()
 
-
-    // Index user-group by name
+    // Index group by name
     mgmt
       .buildIndex(dao.byGroupNameComposite, classOf[Vertex])
       .addKey(typeProperty)
@@ -87,7 +94,7 @@ object EntitlementGraph {
 
     // Index users by name
     mgmt
-      .buildIndex(dao.userNameComposite, classOf[Vertex])
+      .buildIndex(dao.byUserNameComposite, classOf[Vertex])
       .addKey(nameProperty)
       .indexOnly(userLabel)
       .unique()
@@ -95,7 +102,7 @@ object EntitlementGraph {
 
     // Index products by name
     mgmt
-      .buildIndex(dao.productNameComposite, classOf[Vertex])
+      .buildIndex(dao.byProductNameComposite, classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(productLabel)
@@ -103,8 +110,6 @@ object EntitlementGraph {
       .buildCompositeIndex()
 
     mgmt.commit()  // commit indices
-
-    // endregion
 
     // Block until the index is ready
     indices.foreach { k =>
@@ -118,6 +123,8 @@ object EntitlementGraph {
     }
 
     mgmt.commit()
+
+    // endregion
 
   }
 }

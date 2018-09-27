@@ -22,9 +22,9 @@ package object dao {
   // Find a user-group by name
   val byGroupNameComposite = "group-name-index"
 
-  val userNameComposite = "user-name-index"
+  val byUserNameComposite = "user-name-index"
 
-  val productNameComposite = "product-name-index"
+  val byProductNameComposite = "product-name-index"
 
 
   val indices: Set[String] = {
@@ -34,8 +34,8 @@ package object dao {
       byIdTypeComposite,
       byTypeNameComposite,
       byGroupNameComposite,
-      userNameComposite,
-      productNameComposite
+      byUserNameComposite,
+      byProductNameComposite
     )
   }
 
