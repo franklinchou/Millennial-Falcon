@@ -15,12 +15,20 @@ object EntitlementGraph {
 
   val host: String = ConfigFactory.load.getString("storage.hostname")
 
-  val graph: JanusGraph =
-    JanusGraphFactory
-      .build
-      .set("storage.backend", backend)
-      .set("storage.hostname", host)
-      .open()
+  val graph: JanusGraph = {
+
+    val env = ConfigFactory.load.getString("env")
+    
+    if (env == "circle") {
+      JanusGraphFactory.open("inmemory")
+    } else {
+      JanusGraphFactory
+        .build
+        .set("storage.backend", backend)
+        .set("storage.hostname", host)
+        .open()
+    }
+  }
 
 
   // Set up the Janus graph
@@ -45,9 +53,9 @@ object EntitlementGraph {
       .filter(k => Option(mgmt.getVertexLabel(k)).isEmpty)
       .foreach(vl => mgmt.makeVertexLabel(vl.toString).make())
 
-    mgmt.commit() // write to graph
+    mgmt.commit()  // write to graph
 
-    mgmt = jg.openManagement() // re-assignment in order for "open management" command to take
+    mgmt = jg.openManagement()  // re-assignment in order for "open management" command to take
 
     val idProperty = mgmt.getPropertyKey(Model.Id)
     val typeProperty = mgmt.getPropertyKey(Model.Type)
@@ -110,7 +118,7 @@ object EntitlementGraph {
       .unique()
       .buildCompositeIndex()
 
-    mgmt.commit() // commit indices
+    mgmt.commit()  // commit indices
 
     // Block until the index is ready
     indices.foreach { k =>
