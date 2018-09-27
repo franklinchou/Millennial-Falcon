@@ -29,7 +29,7 @@ class UserModelSpec extends FunSpec {
       lazy val expected =
         jg
           .V()
-          //.hasLabel(Model.UserType)
+          .hasLabel(Model.UserType)
           .has(Model.Name, "user1")
           .next()
           .property(Model.Name)

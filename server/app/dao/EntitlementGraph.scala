@@ -11,16 +11,25 @@ import org.janusgraph.graphdb.database.management.ManagementSystem
 
 object EntitlementGraph {
 
-  val backend = ConfigFactory.load.getString("storage.backend")
+  val backend: String = ConfigFactory.load.getString("storage.backend")
 
-  val host = ConfigFactory.load.getString("storage.hostname")
+  val host: String = ConfigFactory.load.getString("storage.hostname")
 
-  val graph: JanusGraph =
-    JanusGraphFactory
-      .build
-      .set("storage.backend", backend)
-      .set("storage.hostname", host)
-      .open()
+  val graph: JanusGraph = {
+
+    val env = ConfigFactory.load.getString("env")
+    
+    if (env == "circle") {
+      JanusGraphFactory.open("inmemory")
+    } else {
+      JanusGraphFactory
+        .build
+        .set("storage.backend", backend)
+        .set("storage.hostname", host)
+        .open()
+    }
+  }
+
 
   // Set up the Janus graph
   def setUp(jg: JanusGraph): Unit = {

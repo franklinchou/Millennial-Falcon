@@ -8,8 +8,6 @@ import org.janusgraph.core.schema.JanusGraphManagement
 @Singleton
 object JanusClient {
 
-  val env: String = ConfigFactory.load.getString("env")
-
   private val graph = EntitlementGraph.graph
 
   // TODO Dynamically setup graph or do nothing if a graph already exists
