@@ -3,20 +3,18 @@ package dao
 import com.google.inject.Singleton
 import com.typesafe.config.ConfigFactory
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
+import org.janusgraph.core.schema.JanusGraphManagement
 
 @Singleton
 object JanusClient {
 
-  val backend = ConfigFactory.load.getString("storage.backend")
+  private val graph = EntitlementGraph.graph
 
-  val host = ConfigFactory.load.getString("storage.hostname")
-
-  val env = ConfigFactory.load.getString("env")
-
-  private val graph = JanusClientUtils.whichGraph(env)
-
-  JanusClientUtils.setUp(graph)
+  // TODO Dynamically setup graph or do nothing if a graph already exists
+  EntitlementGraph.setUp(graph)
 
   val jg: GraphTraversalSource = graph.traversal()
+
+  def manager: JanusGraphManagement = graph.openManagement()
 
 }

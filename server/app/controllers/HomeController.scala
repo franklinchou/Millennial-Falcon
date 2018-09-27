@@ -1,6 +1,6 @@
 package controllers
 
-import dao.JanusClientUtils
+import dao.EntitlementGraph
 import javax.inject._
 import play.api._
 import play.api.libs.json.Json
@@ -16,9 +16,7 @@ class HomeController @Inject()(cc: ControllerComponents,
 
   def health() = Action { implicit request: Request[AnyContent] =>
 
-    val env =  config.get[String]("env")
-
-    val janusConnectionStatus = JanusClientUtils.whichGraph(env).isOpen
+    val janusConnectionStatus = EntitlementGraph.graph.isOpen
 
     val json =
       Json.obj(
