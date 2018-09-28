@@ -49,6 +49,23 @@ object Model {
     StringContainer.apply[M](uuid.toString)
   }
 
+
+  /**
+    *
+    * @param vs
+    * @param ev
+    * @tparam A
+    * @tparam B
+    * @tparam T
+    * @return
+    */
+  implicit def mapList[A, B <: Model[T], T <: AnyVal](vs: List[A])
+                                                     (implicit ev: A => Option[B]): List[B] = {
+
+    vs.flatMap(v => v: Option[B])
+  }
+
+
   def add[T <: AnyVal](m: Model[T], jg: GraphTraversalSource): Vertex = {
     jg
       .addV(m.`type`)
