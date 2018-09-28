@@ -7,7 +7,7 @@ package object dao {
     Set[String](
       Model.UserType,
       Model.GroupType,
-      Model.ProductType
+      Model.FeatureType
     )
   }
 

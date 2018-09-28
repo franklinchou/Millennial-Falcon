@@ -1,6 +1,10 @@
 package models
 
 import lib.StringContainer
-import models.fields.Feature
+import models.fields.FeatureName
 
-case class FeatureModel(feature: StringContainer[Feature]) extends Model
+case class FeatureModel(name: StringContainer[FeatureName]) extends Model[FeatureName] {
+
+  val `type` = Model.FeatureType
+
+}

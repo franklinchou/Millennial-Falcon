@@ -6,14 +6,20 @@ import java.util.UUID
 import lib.StringContainer
 import models.Model.DefaultTime
 import models.fields.ModelId
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
+import org.apache.tinkerpop.gremlin.structure.Vertex
 
 
 /**
   * A generic model
   */
-trait Model {
+trait Model[T <: AnyVal] {
 
   val id: StringContainer[ModelId] = Model.generateUUID[ModelId]
+
+  val name: StringContainer[T]
+
+  val `type`: String
 
   val createdAt: ZonedDateTime = DefaultTime
 
@@ -31,14 +37,27 @@ object Model {
   val Id = "id"
   val Name = "name"
   val Type = "model-type"
+  val CreatedAt = "created-at"
+  val UpdatedAt = "updated-at"
 
   val UserType = "user"
   val GroupType = "group"
-  val ProductType = "product"
+  val FeatureType = "product"
 
   def generateUUID[M <: AnyVal]: StringContainer[M] = {
     val uuid = UUID.randomUUID()
     StringContainer.apply[M](uuid.toString)
+  }
+
+  def add[T <: AnyVal](m: Model[T], jg: GraphTraversalSource): Vertex = {
+    jg
+      .addV(m.`type`)
+      .property(Model.Name, m.name.value)
+      .property(Model.Id, m.id.value)
+      .property(Model.Type, m.`type`)
+      .property(Model.CreatedAt, m.createdAt.toString)
+      .property(Model.UpdatedAt, m.updatedAt.toString)
+      .next()
   }
 
 }

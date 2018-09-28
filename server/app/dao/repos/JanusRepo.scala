@@ -7,7 +7,7 @@ import org.janusgraph.core.JanusGraph
 
 import scala.concurrent.Future
 
-trait JanusRepo[T <: Model] {
+trait JanusRepo[U <: AnyVal, T <: Model[U]] {
 
   val graph: JanusGraph
 

@@ -2,8 +2,7 @@ package models
 
 import ai.x.play.json.Jsonx
 import lib.StringContainer
-import models.fields.ModelUserName
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
+import models.fields.UserName
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
 
@@ -17,7 +16,7 @@ object UserModel {
       // val id = v.property(Model.Name).toString
       val name = v.property(Model.Id).toString
 
-      val model = UserModel.apply(StringContainer.apply[ModelUserName](name))
+      val model = UserModel.apply(StringContainer.apply[UserName](name))
 
       Some(model)
 
@@ -26,18 +25,11 @@ object UserModel {
     }
   }
 
-  val `type`: String = Model.UserType
-
-  def add(um: UserModel, jg: GraphTraversalSource): Vertex = {
-    jg
-      .addV(`type`)
-      .property(Model.Name, um.userName.value)
-      .property(Model.Id, um.id.value)
-      .property(Model.Type, `type`)
-      .next()
-  }
-
 }
 
 
-case class UserModel(userName: StringContainer[ModelUserName]) extends Model
+case class UserModel(name: StringContainer[UserName]) extends Model[UserName] {
+
+  val `type`: String = Model.UserType
+
+}

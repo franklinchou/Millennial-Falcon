@@ -2,11 +2,11 @@ package dao.repos
 
 import lib.StringContainer
 import models.UserModel
-import models.fields.ModelId
+import models.fields.{ModelId, UserName}
 
 import scala.concurrent.Future
 
-trait UserRepo extends JanusRepo[UserModel] {
+trait UserRepo extends JanusRepo[UserName, UserModel] {
 
   val modelType: String = "User"
 

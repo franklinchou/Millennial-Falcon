@@ -4,7 +4,7 @@ import java.util.NoSuchElementException
 
 import dao.JanusClient.jg
 import lib.StringContainer
-import models.fields.ModelUserName
+import models.fields.UserName
 import org.scalatest.FunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
 
@@ -13,11 +13,13 @@ class UserModelSpec extends FunSpec {
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
   val application = new GuiceApplicationBuilder()
 
-  val mockUser1 = UserModel(userName = StringContainer[ModelUserName]("user1"))
-  val mockUser2 = UserModel(userName = StringContainer[ModelUserName]("user2"))
+  val mockUser1 = UserModel(name = StringContainer[UserName]("user1"))
+  val mockUser2 = UserModel(name = StringContainer[UserName]("user2"))
   val mockUsers = Seq(mockUser1, mockUser2)
 
-  private def setUp(): Unit = mockUsers.foreach(mu => UserModel.add(mu, jg))
+  // TODO Should this be UserModel?
+  private def setUp(): Unit = mockUsers.foreach(mu => Model.add(mu, jg))
+
 
   describe("A User Model") {
     it("should insert into Janus Graph") {

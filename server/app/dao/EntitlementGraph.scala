@@ -63,7 +63,7 @@ object EntitlementGraph {
 
     val userLabel: VertexLabel = mgmt.getVertexLabel(Model.UserType)
     val groupLabel = mgmt.getVertexLabel(Model.GroupType)
-    val productLabel = mgmt.getVertexLabel(Model.ProductType)
+    val productLabel = mgmt.getVertexLabel(Model.FeatureType)
 
 
     // region Build indices
