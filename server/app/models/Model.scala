@@ -9,27 +9,6 @@ import models.fields.ModelId
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
-
-/**
-  * A generic model
-  */
-trait Model[T <: AnyVal] {
-
-  val id: StringContainer[ModelId] = Model.generateUUID[ModelId]
-
-  val name: StringContainer[T]
-
-  val `type`: String
-
-  val createdAt: ZonedDateTime = DefaultTime
-
-  val updatedAt: ZonedDateTime = DefaultTime
-
-  lazy val modelType: String = getClass.getSimpleName
-
-}
-
-
 object Model {
 
   val DefaultTime: ZonedDateTime = ZonedDateTime.now(ZoneOffset.UTC)
@@ -49,23 +28,6 @@ object Model {
     StringContainer.apply[M](uuid.toString)
   }
 
-
-  /**
-    *
-    * @param vs
-    * @param ev
-    * @tparam A
-    * @tparam B
-    * @tparam T
-    * @return
-    */
-  implicit def mapList[A, B <: Model[T], T <: AnyVal](vs: List[A])
-                                                     (implicit ev: A => Option[B]): List[B] = {
-
-    vs.flatMap(v => v: Option[B])
-  }
-
-
   def add[T <: AnyVal](m: Model[T], jg: GraphTraversalSource): Vertex = {
     jg
       .addV(m.`type`)
@@ -76,5 +38,25 @@ object Model {
       .property(Model.UpdatedAt, m.updatedAt.toString)
       .next()
   }
+
+}
+
+
+/**
+  * A generic model
+  */
+trait Model[T <: AnyVal] {
+
+  val id: StringContainer[ModelId] = Model.generateUUID[ModelId]
+
+  val name: StringContainer[T]
+
+  val `type`: String
+
+  val createdAt: ZonedDateTime = DefaultTime
+
+  val updatedAt: ZonedDateTime = DefaultTime
+
+  lazy val modelType: String = getClass.getSimpleName
 
 }

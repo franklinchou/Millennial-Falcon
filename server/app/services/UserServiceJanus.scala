@@ -3,6 +3,7 @@ package services
 import com.google.inject.Inject
 import dao.JanusClient.jg
 import models.{Model, UserModel}
+import models.UserModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import utils.ListConversions._
 
@@ -14,15 +15,15 @@ class UserServiceJanus @Inject()()
 
   def findAllUsers: Future[List[UserModel]] = {
 
-    val allUsers: List[Vertex] =
+    val all: List[Vertex] =
       jg
         .V()
         .hasLabel(Model.UserType)
         .toList
 
-    
+    val a = all.flatMap(v => v: Option[UserModel])
 
-    Future { List.empty[UserModel] }
+    Future { a }
 
   }
 
