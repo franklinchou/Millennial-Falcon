@@ -4,7 +4,7 @@ import java.time.{ZoneOffset, ZonedDateTime}
 import java.util.UUID
 
 import lib.StringContainer
-import models.fields.ModelId
+import models.fields.IdField
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
@@ -46,7 +46,7 @@ object Model {
   */
 trait Model[T <: AnyVal] {
 
-  val id: StringContainer[ModelId]
+  val id: StringContainer[IdField]
 
   val name: StringContainer[T]
 

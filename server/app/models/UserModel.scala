@@ -4,7 +4,7 @@ import java.time.ZonedDateTime
 
 import ai.x.play.json.Jsonx
 import lib.StringContainer
-import models.fields.{ModelId, UserName}
+import models.fields.{IdField, UserField}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
 
@@ -41,8 +41,8 @@ object UserModel {
       val model =
         UserModel
           .apply(
-            id = StringContainer.apply[ModelId](id),
-            name = StringContainer.apply[UserName](name),
+            id = StringContainer.apply[IdField](id),
+            name = StringContainer.apply[UserField](name),
             createdAt = createdAt,
             modifiedAt = modifiedAt
           )
@@ -56,16 +56,16 @@ object UserModel {
 
 }
 
-case class UserModel(id: StringContainer[ModelId],
-                     name: StringContainer[UserName],
+case class UserModel(id: StringContainer[IdField],
+                     name: StringContainer[UserField],
                      createdAt: ZonedDateTime,
-                     modifiedAt: ZonedDateTime) extends Model[UserName] {
+                     modifiedAt: ZonedDateTime) extends Model[UserField] {
 
   val `type`: String = Model.UserType
 
-  def apply(name: StringContainer[UserName]): UserModel = {
+  def apply(name: StringContainer[UserField]): UserModel = {
     UserModel(
-      id = Model.generateUUID[ModelId],
+      id = Model.generateUUID[IdField],
       name = name,
       createdAt = Model.DefaultTime,
       modifiedAt = Model.DefaultTime

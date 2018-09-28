@@ -4,7 +4,7 @@ import java.util.NoSuchElementException
 
 import dao.JanusClient.jg
 import lib.StringContainer
-import models.fields.UserName
+import models.fields.UserField
 import org.scalatest.FunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
 
@@ -13,8 +13,8 @@ class UserModelSpec extends FunSpec {
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
   val application = new GuiceApplicationBuilder()
 
-  val mockUser1 = UserModel(name = StringContainer[UserName]("user1"))
-  val mockUser2 = UserModel(name = StringContainer[UserName]("user2"))
+  val mockUser1 = UserModel(name = StringContainer[UserField]("user1"))
+  val mockUser2 = UserModel(name = StringContainer[UserField]("user2"))
   val mockUsers = Seq(mockUser1, mockUser2)
 
   // TODO Should this be UserModel?
