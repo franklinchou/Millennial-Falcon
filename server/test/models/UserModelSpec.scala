@@ -13,8 +13,8 @@ class UserModelSpec extends FunSpec {
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
   val application = new GuiceApplicationBuilder()
 
-  val mockUser1 = UserModel(name = StringContainer[UserField]("user1"))
-  val mockUser2 = UserModel(name = StringContainer[UserField]("user2"))
+  val mockUser1 = UserModel.apply(StringContainer[UserField]("user1"))
+  val mockUser2 = UserModel.apply(StringContainer[UserField]("user2"))
   val mockUsers = Seq(mockUser1, mockUser2)
 
   // TODO Should this be UserModel?

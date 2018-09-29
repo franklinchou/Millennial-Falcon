@@ -27,6 +27,17 @@ object Model {
     StringContainer.apply[M](uuid.toString)
   }
 
+
+  /**
+    * Convert a string to zoned date time
+    *
+    * @param s
+    * @return
+    */
+  implicit def string2ZonedDatetime(s: String): ZonedDateTime = {
+    ZonedDateTime.parse(s)
+  }
+
   def add[T <: AnyVal](m: Model[T], jg: GraphTraversalSource): Vertex = {
     jg
       .addV(m.`type`)

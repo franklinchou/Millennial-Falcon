@@ -1,9 +1,14 @@
 package models
 
-import lib.StringContainer
-import models.fields.FeatureField
+import java.time.ZonedDateTime
 
-case class FeatureModel(name: StringContainer[FeatureField]) extends Model[FeatureField] {
+import lib.StringContainer
+import models.fields.{FeatureField, IdField}
+
+case class FeatureModel(id: StringContainer[IdField],
+                        name: StringContainer[FeatureField],
+                        createdAt: ZonedDateTime,
+                        modifiedAt: ZonedDateTime) extends Model[FeatureField] {
 
   val `type` = Model.FeatureType
 

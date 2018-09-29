@@ -4,23 +4,16 @@ import java.time.ZonedDateTime
 
 import ai.x.play.json.Jsonx
 import lib.StringContainer
+import models.Model._
 import models.fields.{IdField, UserField}
 import org.apache.tinkerpop.gremlin.structure.Vertex
+
+import scala.language.implicitConversions
 
 
 object UserModel {
 
   implicit lazy val jsFormat = Jsonx.formatCaseClass[UserModel]
-
-  /**
-    * Convert a string to zoned date time
-    *
-    * @param s
-    * @return
-    */
-  implicit def string2ZonedDatetime(s: String): ZonedDateTime = {
-    ZonedDateTime.parse(s)
-  }
 
   /**
     * Convert a user vertex to a [[UserModel]]
@@ -35,8 +28,8 @@ object UserModel {
     if (test) {
       val id = v.property(Model.Id).toString
       val name = v.property(Model.Name).toString
-      val createdAt: ZonedDateTime = v.property(Model.CreatedAt).toString
-      val modifiedAt: ZonedDateTime = v.property(Model.ModifiedAt).toString
+      val createdAt = v.property(Model.CreatedAt).toString
+      val modifiedAt = v.property(Model.ModifiedAt).toString
 
       val model =
         UserModel
@@ -54,15 +47,6 @@ object UserModel {
   }
 
 
-}
-
-case class UserModel(id: StringContainer[IdField],
-                     name: StringContainer[UserField],
-                     createdAt: ZonedDateTime,
-                     modifiedAt: ZonedDateTime) extends Model[UserField] {
-
-  val `type`: String = Model.UserType
-
   def apply(name: StringContainer[UserField]): UserModel = {
     UserModel(
       id = Model.generateUUID[IdField],
@@ -72,5 +56,14 @@ case class UserModel(id: StringContainer[IdField],
     )
   }
 
+
+}
+
+case class UserModel(id: StringContainer[IdField],
+                     name: StringContainer[UserField],
+                     createdAt: ZonedDateTime,
+                     modifiedAt: ZonedDateTime) extends Model[UserField] {
+
+  val `type`: String = Model.UserType
 
 }
