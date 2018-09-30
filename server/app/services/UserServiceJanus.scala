@@ -20,6 +20,7 @@ class UserServiceJanus @Inject()()
       jg
         .V()
         .hasLabel(Model.UserType)
+        .has(Model.Type, Model.UserType)
         .toList
         .map(v => v: UserModel)
     }
@@ -30,6 +31,7 @@ class UserServiceJanus @Inject()()
         jg
           .V()
           .hasLabel(Model.UserType)
+          .has(Model.Type, Model.UserType)
           .has(Model.Id, id.value)
           .next()
       }.toOption.map(v => v: UserModel)
@@ -57,6 +59,7 @@ class UserServiceJanus @Inject()()
       jg
         .V()
         .hasLabel(Model.UserType)
+        .has(Model.Type, Model.UserType)
         .has(Model.Id, id.value)
         .next()
         .remove()

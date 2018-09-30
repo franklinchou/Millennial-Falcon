@@ -74,6 +74,7 @@ object EntitlementGraph {
       .unique()
       .buildCompositeIndex()
 
+    // `findAll` index
     mgmt
       .buildIndex(dao.byTypeComposite, classOf[Vertex])
       .addKey(typeProperty)

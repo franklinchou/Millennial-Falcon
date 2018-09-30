@@ -22,8 +22,6 @@ class UserServiceSpec extends AsyncFunSpec {
 
   private def setUp(): Unit = mockUsers.foreach(mu => userService.add(mu))
 
-  private def tearDown(): Unit = mockUsers.foreach(mu => userService.remove(mu.id))
-
   describe("A User Service") {
     it("should insert into Janus Graph") {
 
