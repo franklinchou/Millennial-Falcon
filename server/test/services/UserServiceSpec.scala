@@ -4,13 +4,10 @@ import java.util.NoSuchElementException
 
 import dao.JanusClient.jg
 import lib.StringContainer
-import models.{Model, UserModel}
 import models.fields.UserField
+import models.{Model, UserModel}
 import org.scalatest.AsyncFunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
-
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 
 class UserServiceSpec extends AsyncFunSpec {
 
@@ -52,7 +49,6 @@ class UserServiceSpec extends AsyncFunSpec {
       assert(expected == "user1")
     }
 
-
     it("should support find all") {
       userService.findAllUsers.map(u => assert(u.size == 2))
     }
@@ -63,8 +59,6 @@ class UserServiceSpec extends AsyncFunSpec {
 
     it("should support delete") {
       userService.remove(mockUser1.id)
-
-      println(Await.result(userService.findAllUsers, Duration.Inf))
 
       // Test
       userService.findAllUsers.map(u => assert(u.size == 1))
