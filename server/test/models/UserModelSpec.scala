@@ -6,20 +6,23 @@ import dao.JanusClient.jg
 import lib.StringContainer
 import models.fields.UserField
 import org.scalatest.FunSpec
+import org.scalatest.mockito.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
+import services.UserServiceJanus
 
-class UserModelSpec extends FunSpec {
+class UserModelSpec extends FunSpec with MockitoSugar {
 
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
   val application = new GuiceApplicationBuilder()
+
+  val userService = application.injector.instanceOf[UserServiceJanus]
 
   val mockUser1 = UserModel.apply(StringContainer[UserField]("user1"))
   val mockUser2 = UserModel.apply(StringContainer[UserField]("user2"))
   val mockUsers = Seq(mockUser1, mockUser2)
 
   // TODO Should this be UserModel?
-  private def setUp(): Unit = mockUsers.foreach(mu => Model.add(mu, jg))
-
+  private def setUp(): Unit = mockUsers.foreach(mu => userService.add(mu))
 
   describe("A User Model") {
     it("should insert into Janus Graph") {

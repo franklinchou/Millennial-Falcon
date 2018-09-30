@@ -7,9 +7,6 @@ import lib.StringContainer
 import models.fields.{IdField, UserField}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
-import scala.language.implicitConversions
-
-
 object UserModel {
 
   implicit lazy val jsFormat = Jsonx.formatCaseClass[UserModel]
@@ -54,7 +51,6 @@ object UserModel {
       modifiedAt = Model.DefaultTime
     )
   }
-
 
 }
 
