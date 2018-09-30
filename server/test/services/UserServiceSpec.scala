@@ -1,18 +1,18 @@
-package models
+package services
 
 import java.util.NoSuchElementException
 
 import dao.JanusClient.jg
 import lib.StringContainer
+import models.{Model, UserModel}
 import models.fields.UserField
-import org.scalatest.FunSpec
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.AsyncFunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
-import services.UserServiceJanus
 
-class UserServiceSpec extends FunSpec {
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+class UserServiceSpec extends AsyncFunSpec {
 
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
   val application = new GuiceApplicationBuilder()
@@ -23,8 +23,9 @@ class UserServiceSpec extends FunSpec {
   val mockUser2 = UserModel.apply(StringContainer[UserField]("user2"))
   val mockUsers = Seq(mockUser1, mockUser2)
 
-  // TODO Should this be UserModel?
   private def setUp(): Unit = mockUsers.foreach(mu => userService.add(mu))
+
+  private def tearDown(): Unit = mockUsers.foreach(mu => userService.remove(mu.id))
 
   describe("A User Service") {
     it("should insert into Janus Graph") {
@@ -47,20 +48,27 @@ class UserServiceSpec extends FunSpec {
         expected
       }
 
-      // Set up mock
-      setUp()
-
+      setUp() // Set up mock
       assert(expected == "user1")
     }
 
+
     it("should support find all") {
-      userService.findAllUsers.map(users => assert(users.size == 2))
+      userService.findAllUsers.map(u => assert(u.size == 2))
+    }
+
+    it("should convert from Vertex => UserModel") {
+      userService.findById(mockUser1.id).map(m => assert(m.contains(mockUser1)))
     }
 
     it("should support delete") {
       userService.remove(mockUser1.id)
-      userService.findAllUsers.map(users => assert(users.size == 1))
+
+      println(Await.result(userService.findAllUsers, Duration.Inf))
+
+      // Test
+      userService.findAllUsers.map(u => assert(u.size == 1))
+      userService.findById(mockUser1.id).map(m => assert(m.isEmpty))
     }
   }
-
 }

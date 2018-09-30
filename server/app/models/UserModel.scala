@@ -17,29 +17,19 @@ object UserModel {
     * @param v
     * @return
     */
-  implicit def vertex2Model(v: Vertex): Option[UserModel] = {
+  implicit def vertex2Model(v: Vertex): UserModel = {
+    val id = v.property(Model.Id).value.toString
+    val name = v.property(Model.Name).value.toString
+    val createdAt = v.property(Model.CreatedAt).value.toString
+    val modifiedAt = v.property(Model.ModifiedAt).value.toString
 
-    val test = ModelUtils.testVertex(v, Model.UserType)
-
-    if (test) {
-      val id = v.property(Model.Id).toString
-      val name = v.property(Model.Name).toString
-      val createdAt = v.property(Model.CreatedAt).toString
-      val modifiedAt = v.property(Model.ModifiedAt).toString
-
-      val model =
-        UserModel
-          .apply(
-            id = StringContainer.apply[IdField](id),
-            name = StringContainer.apply[UserField](name),
-            createdAt = ZonedDateTime.parse(createdAt),
-            modifiedAt = ZonedDateTime.parse(modifiedAt)
-          )
-
-      Some(model)
-    } else {
-      None
-    }
+    UserModel
+      .apply(
+        id = StringContainer.apply[IdField](id),
+        name = StringContainer.apply[UserField](name),
+        createdAt = ZonedDateTime.parse(createdAt),
+        modifiedAt = ZonedDateTime.parse(modifiedAt)
+      )
   }
 
 
