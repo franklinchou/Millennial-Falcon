@@ -5,7 +5,6 @@ import java.util.UUID
 
 import lib.StringContainer
 import models.fields.IdField
-import org.apache.tinkerpop.gremlin.structure.Vertex
 
 object Model {
 

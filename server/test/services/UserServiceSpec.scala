@@ -10,7 +10,9 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
 import services.UserServiceJanus
 
-class UserModelSpec extends FunSpec with MockitoSugar {
+class UserServiceSpec extends FunSpec {
+
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice
   val application = new GuiceApplicationBuilder()
@@ -24,7 +26,7 @@ class UserModelSpec extends FunSpec with MockitoSugar {
   // TODO Should this be UserModel?
   private def setUp(): Unit = mockUsers.foreach(mu => userService.add(mu))
 
-  describe("A User Model") {
+  describe("A User Service") {
     it("should insert into Janus Graph") {
 
       /**
@@ -45,9 +47,19 @@ class UserModelSpec extends FunSpec with MockitoSugar {
         expected
       }
 
+      // Set up mock
       setUp()
 
       assert(expected == "user1")
+    }
+
+    it("should support find all") {
+      userService.findAllUsers.map(users => assert(users.size == 2))
+    }
+
+    it("should support delete") {
+      userService.remove(mockUser1.id)
+      userService.findAllUsers.map(users => assert(users.size == 1))
     }
   }
 
