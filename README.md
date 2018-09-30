@@ -9,3 +9,7 @@ Just your basic ass, Starbucks drinking, social-media-consuming next-gen entitle
 
 * `docker run --name cassandra-test -d cassandra:latest  # first time`
 * `docker start cassandra-test`
+
+2. Running Cassandra commands:
+
+* `docker exec -it cassandra-test bash`
