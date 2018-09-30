@@ -27,25 +27,18 @@ object Model {
     StringContainer.apply[M](uuid.toString)
   }
 
-
-  /**
-    * Convert a string to zoned date time
-    *
-    * @param s
-    * @return
-    */
-  implicit def string2ZonedDatetime(s: String): ZonedDateTime = {
-    ZonedDateTime.parse(s)
-  }
-
   def add[T <: AnyVal](m: Model[T], jg: GraphTraversalSource): Vertex = {
+
+    val createdAt = m.createdAt.toString
+    val modifiedAt = m.modifiedAt.toString
+
     jg
       .addV(m.`type`)
       .property(Model.Type, m.`type`)
       .property(Model.Name, m.name.value)
       .property(Model.Id, m.id.value)
-      .property(Model.CreatedAt, m.createdAt.toString)
-      .property(Model.ModifiedAt, m.modifiedAt.toString)
+      .property(Model.CreatedAt, createdAt)
+      .property(Model.ModifiedAt, modifiedAt)
       .next()
   }
 

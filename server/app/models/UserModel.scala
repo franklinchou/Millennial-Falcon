@@ -4,7 +4,6 @@ import java.time.ZonedDateTime
 
 import ai.x.play.json.Jsonx
 import lib.StringContainer
-import models.Model._
 import models.fields.{IdField, UserField}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
@@ -36,8 +35,8 @@ object UserModel {
           .apply(
             id = StringContainer.apply[IdField](id),
             name = StringContainer.apply[UserField](name),
-            createdAt = createdAt,
-            modifiedAt = modifiedAt
+            createdAt = ZonedDateTime.parse(createdAt),
+            modifiedAt = ZonedDateTime.parse(modifiedAt)
           )
 
       Some(model)

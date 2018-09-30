@@ -1,7 +1,6 @@
 package dao
 
 import com.google.inject.Singleton
-import com.typesafe.config.ConfigFactory
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.janusgraph.core.schema.JanusGraphManagement
 
