@@ -20,15 +20,22 @@ class GroupServiceJanus @Inject()()
     *
     * @return
     */
-  def findAllGroups: Future[List[GroupModel]] =
-    Future.successful {
+  def findAllGroups: Future[List[GroupModel]] = {
+    Try {
       jg
         .V()
         .hasLabel(Model.GroupType)
         .has(Model.Type, Model.GroupType)
         .toList
-        .map(v => v:GroupModel)
+        .map(v => v: GroupModel)
+    } match {
+      case Success(groups) => Future { groups }
+      case Failure(e) =>
+        Logger.error(s"`findAllGroups` failed with error $e")
+        Future { List.empty[GroupModel] }
     }
+  }
+
 
   def findById(id: StringContainer[IdField]): Future[Option[GroupModel]] = {
     val model: Option[GroupModel] =

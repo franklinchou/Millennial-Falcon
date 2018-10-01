@@ -1,11 +1,12 @@
 package dao
 
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 import com.typesafe.config.ConfigFactory
 import models.Model
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import org.janusgraph.core.schema.SchemaAction
+import org.janusgraph.core.schema.{SchemaAction, SchemaStatus}
 import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory, VertexLabel}
 import org.janusgraph.graphdb.database.management.ManagementSystem
 
@@ -15,9 +16,9 @@ object EntitlementGraph {
 
   val host: String = ConfigFactory.load.getString("storage.hostname")
 
-  val graph: JanusGraph = {
+  val env = ConfigFactory.load.getString("env")
 
-    val env = ConfigFactory.load.getString("env")
+  val graph: JanusGraph = {
     
     if (env == "circle") {
       JanusGraphFactory.open("inmemory")
@@ -123,7 +124,11 @@ object EntitlementGraph {
 
     // Block until the index is ready
     indices.foreach { k =>
-      ManagementSystem.awaitGraphIndexStatus(jg, k).call()
+      ManagementSystem
+        .awaitGraphIndexStatus(jg, k)
+        .status(SchemaStatus.REGISTERED)
+        .timeout(2, ChronoUnit.MINUTES)
+        .call()
     }
 
     mgmt = jg.openManagement()
