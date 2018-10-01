@@ -62,5 +62,4 @@ class GroupController @Inject()(cc: ControllerComponents,
       }
     }
   }
-
 }
