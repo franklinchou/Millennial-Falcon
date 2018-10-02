@@ -1,9 +1,10 @@
-package models
+package models.vertex
 
 import java.time.ZonedDateTime
 
 import lib.StringContainer
-import models.fields.{FeatureField, IdField}
+import models.field.{FeatureField, IdField}
+import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
 case class FeatureModel(id: StringContainer[IdField],
@@ -11,7 +12,7 @@ case class FeatureModel(id: StringContainer[IdField],
                         createdAt: ZonedDateTime,
                         modifiedAt: ZonedDateTime) extends Model[FeatureField] {
 
-  val `type` = Model.FeatureType
+  val `type` = vertex.FeatureType
 
   def add(m: Model[FeatureField]): Vertex = ???
 }

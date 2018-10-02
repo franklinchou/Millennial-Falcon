@@ -4,8 +4,9 @@ import java.util.NoSuchElementException
 
 import dao.JanusClient.jg
 import lib.StringContainer
-import models.fields.UserField
-import models.{Model, UserModel}
+import models.field.UserField
+import models.vertex
+import models.vertex.UserModel
 import org.scalatest.AsyncFunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
 
@@ -22,8 +23,6 @@ class UserServiceSpec extends AsyncFunSpec {
 
   private def setUp(): Unit = mockUsers.foreach(mu => userService.add(mu))
 
-  private def tearDown(): Unit = mockUsers.foreach(mu => userService.remove(mu.id))
-
   describe("A User Service") {
     it("should insert into Janus Graph") {
 
@@ -34,10 +33,10 @@ class UserServiceSpec extends AsyncFunSpec {
       lazy val expected =
         jg
           .V()
-          .hasLabel(Model.UserType)
-          .has(Model.Name, "user1")
+          .hasLabel(vertex.UserType)
+          .has(vertex.Name, "user1")
           .next()
-          .property(Model.Name)
+          .property(vertex.Name)
           .value()
           .toString
 

@@ -3,10 +3,11 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# An example controller showing a sample home page
 GET     /                           controllers.HomeController.health
-GET     /clients                    controllers.UserController.index
-GET     /users                      controllers.UserGroupController.index
+GET     /users                      controllers.UserController.index
+GET     /groups                     controllers.GroupController.index
+GET     /groups/:id                 controllers.GroupController.findById(id: String)
+POST    /groups                     controllers.GroupController.create
 
 
 # Map static resources from the /public folder to the /assets URL path
