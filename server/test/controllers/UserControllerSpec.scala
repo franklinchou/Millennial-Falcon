@@ -48,5 +48,5 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
     }
 
   }
-  
+
 }
