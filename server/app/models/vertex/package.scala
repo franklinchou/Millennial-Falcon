@@ -19,10 +19,6 @@ package object vertex {
   val GroupType = "group"
   val FeatureType = "product"
 
-  // Edges
-
-
-
   def generateUUID[M <: AnyVal]: StringContainer[M] = {
     val uuid = UUID.randomUUID()
     StringContainer.apply[M](uuid.toString)
