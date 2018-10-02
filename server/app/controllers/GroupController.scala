@@ -33,6 +33,26 @@ class GroupController @Inject()(cc: ControllerComponents,
       }
   }
 
+
+  /**
+    * Find all the users associated with a particular group id
+    *
+    * @param groupId
+    * @return
+    */
+  def showUsers(groupId: String) = Action.async { implicit rq: Request[AnyContent] =>
+
+    val groupIdContainer = StringContainer.apply[IdField](groupId)
+
+    groupService
+      .findAllUsers(groupIdContainer)
+      .map { m =>
+        val json = Json.toJson(m)
+        Ok(json)
+      }
+  }
+
+
   /**
     * Create a new group
     *

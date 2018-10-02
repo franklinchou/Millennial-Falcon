@@ -4,8 +4,8 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.{IdField, UserField}
-import models.{edge, vertex}
 import models.vertex.{GroupModel, UserModel}
+import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
@@ -13,7 +13,7 @@ import utils.ListConversions._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class GroupServiceJanus @Inject()(userService: UserServiceJanus)
+class GroupServiceJanus @Inject()(userService: UserService)
                                  (implicit ec: ExecutionContext) extends GroupService {
 
   /**
@@ -49,6 +49,28 @@ class GroupServiceJanus @Inject()(userService: UserServiceJanus)
       case Failure(e) =>
         Logger.error(s"`findAllGroups` failed with error $e")
         Future { List.empty[GroupModel] }
+    }
+  }
+
+  /**
+    * Find all users associated with a group
+    *
+    * @param groupId
+    * @return
+    */
+  def findAllUsers(groupId: StringContainer[IdField]): Future[List[UserModel]] = {
+    Try {
+      val groupVertex = findById(groupId)
+      jg
+        .V(groupVertex.id)
+        .out()
+        .toList
+        .map(v => v: UserModel)
+    } match {
+      case Success(users) => Future { users }
+      case Failure(e) =>
+        Logger.error(s"`findAllUsers` failed with error $e")
+        Future { List.empty[UserModel] }
     }
   }
 
@@ -106,7 +128,7 @@ class GroupServiceJanus @Inject()(userService: UserServiceJanus)
       findById(group)
     } match {
       case Success(g) =>
-        user.addEdge(edge.User2FeatureEdge.label, findById(group))
+        findById(group).addEdge(edge.Group2UserEdge.label, user)
         val _ = jg.tx.commit()
         Some(user)
       case Failure(e) =>
