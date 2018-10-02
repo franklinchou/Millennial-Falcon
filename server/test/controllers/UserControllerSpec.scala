@@ -7,7 +7,8 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.test.Helpers.{GET, OK, status, stubControllerComponents}
+import play.api.libs.json.{JsValue, Json}
+import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import services.UserService
 
@@ -35,11 +36,17 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
       val request = FakeRequest(GET, s"/users")
       val method = controller.index()(request)
 
-      // TODO check status for now, how to check return value?
       status(method)(Timeout(5.seconds)) mustBe OK
+
+
+      val content = contentAsJson(method)(Timeout(5.seconds))
+      val expected: Seq[JsValue] = mockResults.map(mr => Json.toJson(mr))
+
+      val flattenExpected = Json.toJson[Seq[JsValue]](expected)
+
+      assert(content == flattenExpected)
     }
 
   }
-
-
+  
 }
