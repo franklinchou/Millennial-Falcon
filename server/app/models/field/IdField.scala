@@ -1,4 +1,4 @@
-package models.fields
+package models.field
 
 import play.api.libs.json.OFormat
 import ai.x.play.json.Jsonx

@@ -2,8 +2,8 @@ package services
 
 import com.google.inject.ImplementedBy
 import lib.StringContainer
-import models.GroupModel
-import models.fields.IdField
+import models.field.IdField
+import models.vertex.GroupModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
 import scala.concurrent.{ExecutionContext, Future}

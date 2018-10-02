@@ -2,8 +2,8 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
-import models.GroupModel
-import models.fields.{GroupField, IdField}
+import models.field.{GroupField, IdField}
+import models.vertex.GroupModel
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.GroupService

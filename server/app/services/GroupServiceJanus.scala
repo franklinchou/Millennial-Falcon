@@ -3,8 +3,8 @@ package services
 import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
-import models.GroupModel
-import models.fields.IdField
+import models.field.IdField
+import models.vertex.GroupModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
