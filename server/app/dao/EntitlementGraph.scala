@@ -4,6 +4,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 import com.typesafe.config.ConfigFactory
+import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import org.janusgraph.core.schema.{SchemaAction, SchemaStatus}
 import org.janusgraph.core.{Cardinality, JanusGraph, JanusGraphFactory, VertexLabel}
@@ -38,9 +39,9 @@ object EntitlementGraph {
 
     val properties =
       Map(
-        models.Id -> classOf[UUID],
-        models.Name -> classOf[String],
-        models.Type -> classOf[String]
+        vertex.Id -> classOf[UUID],
+        vertex.Name -> classOf[String],
+        vertex.Type -> classOf[String]
       )
 
     // Make property keys for any key that doesn't already exist
@@ -57,13 +58,13 @@ object EntitlementGraph {
 
     mgmt = jg.openManagement()  // re-assignment in order for "open management" command to take
 
-    val idProperty = mgmt.getPropertyKey(models.Id)
-    val typeProperty = mgmt.getPropertyKey(models.Type)
-    val nameProperty = mgmt.getPropertyKey(models.Name)
+    val idProperty = mgmt.getPropertyKey(vertex.Id)
+    val typeProperty = mgmt.getPropertyKey(vertex.Type)
+    val nameProperty = mgmt.getPropertyKey(vertex.Name)
 
-    val userLabel: VertexLabel = mgmt.getVertexLabel(models.UserType)
-    val groupLabel = mgmt.getVertexLabel(models.GroupType)
-    val productLabel = mgmt.getVertexLabel(models.FeatureType)
+    val userLabel: VertexLabel = mgmt.getVertexLabel(vertex.UserType)
+    val groupLabel = mgmt.getVertexLabel(vertex.GroupType)
+    val productLabel = mgmt.getVertexLabel(vertex.FeatureType)
 
 
     // region Build indices

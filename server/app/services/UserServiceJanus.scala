@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
+import models.vertex
 import models.vertex.UserModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
@@ -19,8 +20,8 @@ class UserServiceJanus @Inject()()
     Future.successful {
       jg
         .V()
-        .hasLabel(models.UserType)
-        .has(models.Type, models.UserType)
+        .hasLabel(vertex.UserType)
+        .has(vertex.Type, vertex.UserType)
         .toList
         .map(v => v: UserModel)
     }
@@ -30,9 +31,9 @@ class UserServiceJanus @Inject()()
       Try {
         jg
           .V()
-          .hasLabel(models.UserType)
-          .has(models.Type, models.UserType)
-          .has(models.Id, id.value)
+          .hasLabel(vertex.UserType)
+          .has(vertex.Type, vertex.UserType)
+          .has(vertex.Id, id.value)
           .next()
       }.toOption.map(v => v: UserModel)
 
@@ -46,11 +47,11 @@ class UserServiceJanus @Inject()()
 
     jg
       .addV(m.`type`)
-      .property(models.Type, m.`type`)
-      .property(models.Name, m.name.value)
-      .property(models.Id, m.id.value)
-      .property(models.CreatedAt, createdAt)
-      .property(models.ModifiedAt, modifiedAt)
+      .property(vertex.Type, m.`type`)
+      .property(vertex.Name, m.name.value)
+      .property(vertex.Id, m.id.value)
+      .property(vertex.CreatedAt, createdAt)
+      .property(vertex.ModifiedAt, modifiedAt)
       .next()
   }
 
@@ -58,9 +59,9 @@ class UserServiceJanus @Inject()()
     Try {
       jg
         .V()
-        .hasLabel(models.UserType)
-        .has(models.Type, models.UserType)
-        .has(models.Id, id.value)
+        .hasLabel(vertex.UserType)
+        .has(vertex.Type, vertex.UserType)
+        .has(vertex.Id, id.value)
         .next()
         .remove()
     } match {

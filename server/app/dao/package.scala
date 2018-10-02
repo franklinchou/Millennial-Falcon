@@ -1,11 +1,13 @@
+import models.vertex
+
 package object dao {
 
   // TODO Should be of type StringContainer[Key]
   val keys: Set[String] = {
     Set[String](
-      models.UserType,
-      models.GroupType,
-      models.FeatureType
+      vertex.UserType,
+      vertex.GroupType,
+      vertex.FeatureType
     )
   }
 

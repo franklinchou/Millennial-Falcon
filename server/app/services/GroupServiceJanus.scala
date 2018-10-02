@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
+import models.vertex
 import models.vertex.GroupModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
@@ -25,9 +26,9 @@ class GroupServiceJanus @Inject()()
   private def findById(id: StringContainer[IdField]): Vertex = {
     jg
       .V()
-      .hasLabel(models.GroupType)
-      .has(models.Type, models.GroupType)
-      .has(models.Id, id.value)
+      .hasLabel(vertex.GroupType)
+      .has(vertex.Type, vertex.GroupType)
+      .has(vertex.Id, id.value)
       .next()
   }
 
@@ -40,8 +41,8 @@ class GroupServiceJanus @Inject()()
     Try {
       jg
         .V()
-        .hasLabel(models.GroupType)
-        .has(models.Type, models.GroupType)
+        .hasLabel(vertex.GroupType)
+        .has(vertex.Type, vertex.GroupType)
         .toList
         .map(v => v: GroupModel)
     } match {
@@ -64,11 +65,11 @@ class GroupServiceJanus @Inject()()
   def add(m: GroupModel): Vertex =
     jg
       .addV(m.`type`)
-      .property(models.Type, m.`type`)
-      .property(models.Name, m.name.value)
-      .property(models.Id, m.id.value)
-      .property(models.CreatedAt, m.createdAt.toString)
-      .property(models.ModifiedAt, m.modifiedAt.toString)
+      .property(vertex.Type, m.`type`)
+      .property(vertex.Name, m.name.value)
+      .property(vertex.Id, m.id.value)
+      .property(vertex.CreatedAt, m.createdAt.toString)
+      .property(vertex.ModifiedAt, m.modifiedAt.toString)
       .next()
 
   def remove(id: StringContainer[IdField]): Boolean = {
