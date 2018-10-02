@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import services.UserService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents,
@@ -19,6 +19,14 @@ class UserController @Inject()(cc: ControllerComponents,
         val json = Json.toJson(models)
         Ok(json)
       }
+  }
+
+
+  def showGroups(id: String) = Action.async {
+    implicit rq: Request[AnyContent] =>
+
+      // TODO 
+      Future { Ok }
   }
 
 }

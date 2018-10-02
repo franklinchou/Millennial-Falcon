@@ -13,7 +13,7 @@ abstract class UserService()(implicit ec: ExecutionContext) {
 
   def findAllUsers: Future[List[UserModel]]
 
-  def findById(id: StringContainer[IdField]): Future[Option[UserModel]]
+  def find(id: StringContainer[IdField]): Future[Option[UserModel]]
 
   def add(m: UserModel): Vertex
 

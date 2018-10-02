@@ -55,7 +55,7 @@ class UserServiceSpec extends AsyncFunSpec {
     }
 
     it("should convert from Vertex -> UserModel") {
-      userService.findById(mockUser1.id).map(m => assert(m.contains(mockUser1)))
+      userService.find(mockUser1.id).map(m => assert(m.contains(mockUser1)))
     }
 
     it("should support delete") {
@@ -63,7 +63,7 @@ class UserServiceSpec extends AsyncFunSpec {
 
       // Test
       userService.findAllUsers.map(u => assert(u.size == 1))
-      userService.findById(mockUser1.id).map(m => assert(m.isEmpty))
+      userService.find(mockUser1.id).map(m => assert(m.isEmpty))
     }
   }
 }

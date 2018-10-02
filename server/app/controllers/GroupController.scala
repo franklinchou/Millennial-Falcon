@@ -24,7 +24,7 @@ class GroupController @Inject()(cc: ControllerComponents,
       }
   }
 
-  def findById(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+  def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
       .find(StringContainer.apply[IdField](id))
       .map { m =>

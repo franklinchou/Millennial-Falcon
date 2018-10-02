@@ -16,6 +16,21 @@ import scala.util.{Failure, Success, Try}
 class UserServiceJanus @Inject()()
                                 (implicit ec: ExecutionContext) extends UserService {
 
+  /**
+    * Find a user by its id and return the user vertex
+    *
+    * @param id
+    * @return
+    */
+  private def findById(id: StringContainer[IdField]): Vertex = {
+    jg
+      .V()
+      .hasLabel(vertex.UserType)
+      .has(vertex.Type, vertex.UserType)
+      .has(vertex.Id, id.value)
+      .next()
+  }
+
   def findAllUsers: Future[List[UserModel]] =
     Future.successful {
       jg
@@ -26,18 +41,12 @@ class UserServiceJanus @Inject()()
         .map(v => v: UserModel)
     }
 
-  def findById(id: StringContainer[IdField]): Future[Option[UserModel]] = {
-    val model: Option[UserModel] =
+  def find(id: StringContainer[IdField]): Future[Option[UserModel]] = {
+    Future {
       Try {
-        jg
-          .V()
-          .hasLabel(vertex.UserType)
-          .has(vertex.Type, vertex.UserType)
-          .has(vertex.Id, id.value)
-          .next()
+        findById(id)
       }.toOption.map(v => v: UserModel)
-
-    Future { model }
+    }
   }
 
   def add(m: UserModel): Vertex = {
@@ -61,13 +70,7 @@ class UserServiceJanus @Inject()()
 
   def remove(id: StringContainer[IdField]): Boolean = {
     Try {
-      jg
-        .V()
-        .hasLabel(vertex.UserType)
-        .has(vertex.Type, vertex.UserType)
-        .has(vertex.Id, id.value)
-        .next()
-        .remove()
+      findById(id).remove()
     } match {
       case Success(_) =>
         jg.tx.commit()
