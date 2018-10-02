@@ -1,5 +1,35 @@
 package services
 
-class GroupServiceSpec {
+import lib.StringContainer
+import models.field.{GroupField, UserField}
+import models.vertex.GroupModel
+import org.scalatest.AsyncFunSpec
+import play.api.inject.guice.GuiceApplicationBuilder
+
+import dao.JanusClient.jg
+
+class GroupServiceSpec extends AsyncFunSpec {
+
+  val application = new GuiceApplicationBuilder()
+
+  val userService = application.injector.instanceOf[UserServiceJanus]
+
+  val groupService = application.injector.instanceOf[GroupServiceJanus]
+
+  describe("Group Service") {
+
+    it("should allow user -> group association") {
+      val mockGroup = GroupModel.apply(StringContainer[GroupField]("mock-group"))
+      val mockUserName = StringContainer[UserField]("mock-user")
+
+      val groupId = mockGroup.id
+      val addedGroup = groupService.add(mockGroup)
+      val result = groupService.associateUser(groupId, mockUserName)  // return the resulting user
+
+      val query = jg.V(result.get.id).out().toList
+      assert(query.contains(addedGroup))
+    }
+
+  }
 
 }

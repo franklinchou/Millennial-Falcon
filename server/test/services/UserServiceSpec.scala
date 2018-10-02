@@ -18,12 +18,14 @@ class UserServiceSpec extends AsyncFunSpec {
   val userService = application.injector.instanceOf[UserServiceJanus]
 
   val mockUser1 = UserModel.apply(StringContainer[UserField]("user1"))
+
   val mockUser2 = UserModel.apply(StringContainer[UserField]("user2"))
+
   val mockUsers = Seq(mockUser1, mockUser2)
 
   private def setUp(): Unit = mockUsers.foreach(mu => userService.add(mu))
 
-  describe("A User Service") {
+  describe("User Service") {
     it("should insert into Janus Graph") {
 
       /**
@@ -52,7 +54,7 @@ class UserServiceSpec extends AsyncFunSpec {
       userService.findAllUsers.map(u => assert(u.size == 2))
     }
 
-    it("should convert from Vertex => UserModel") {
+    it("should convert from Vertex -> UserModel") {
       userService.findById(mockUser1.id).map(m => assert(m.contains(mockUser1)))
     }
 

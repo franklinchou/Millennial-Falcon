@@ -3,19 +3,22 @@ package services
 import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
-import models.field.IdField
+import models.field.{IdField, UserField}
 import models.vertex
-import models.vertex.GroupModel
+import models.vertex.{GroupModel, UserModel}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
 
+
+import models.edge
+
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class GroupServiceJanus @Inject()()
+class GroupServiceJanus @Inject()(userService: UserServiceJanus)
                                  (implicit ec: ExecutionContext) extends GroupService {
-
 
   /**
     * Given the group id, find the associated vertex
@@ -79,7 +82,7 @@ class GroupServiceJanus @Inject()()
       case Success(_) => true
       case Failure(e) =>
         val _ = jg.tx().rollback()
-        Logger.error(s"Error when attempting to remove node: ${id.value}, $e")
+        Logger.error(s"Error when attempting to remove group: ${id.value}, $e")
         false
     }
   }
@@ -87,9 +90,24 @@ class GroupServiceJanus @Inject()()
   /**
     * Create a new user and associate it with a given group
     *
-    * @param id Group id
+    * @param group Group id
+    * @param name  Name of new user to create
     * @return
     */
-  def associateUser(id: StringContainer[IdField]): Vertex = ???
+  def associateUser(group: StringContainer[IdField], name: StringContainer[UserField]): Option[Vertex] = {
+    val userModel = UserModel.apply(name)
+    val user: Vertex = userService.add(userModel)
+
+    Try {
+      findById(group)
+    } match {
+      case Success(g) =>
+        user.addEdge(edge.User2FeatureEdge.label, findById(group))
+        Some(user)
+      case Failure(e) =>
+        Logger.error(s"Error when attempting to find group, $e")
+        None
+    }
+  }
 
 }
