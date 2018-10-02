@@ -26,7 +26,7 @@ class GroupController @Inject()(cc: ControllerComponents,
 
   def findById(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
-      .findById(StringContainer.apply[IdField](id))
+      .find(StringContainer.apply[IdField](id))
       .map { m =>
         val json = Json.toJson(m)
         Ok(json)
@@ -62,4 +62,5 @@ class GroupController @Inject()(cc: ControllerComponents,
       }
     }
   }
+
 }

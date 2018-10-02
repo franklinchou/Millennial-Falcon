@@ -18,10 +18,10 @@ object GroupModel {
     * @return
     */
   implicit def vertex2Model(v: Vertex): GroupModel = {
-    val id = v.property(Model.Id).value.toString
-    val group = v.property(Model.Name).value.toString
-    val createdAt = v.property(Model.CreatedAt).value.toString
-    val modifiedAt = v.property(Model.ModifiedAt).value.toString
+    val id = v.property(models.Id).value.toString
+    val group = v.property(models.Name).value.toString
+    val createdAt = v.property(models.CreatedAt).value.toString
+    val modifiedAt = v.property(models.ModifiedAt).value.toString
 
     GroupModel
       .apply(
@@ -41,10 +41,10 @@ object GroupModel {
     */
   def apply(name: StringContainer[GroupField]): GroupModel = {
     GroupModel(
-      id = Model.generateUUID[IdField],
+      id = models.generateUUID[IdField],
       name = name,
-      createdAt = Model.DefaultTime,
-      modifiedAt = Model.DefaultTime
+      createdAt = models.DefaultTime,
+      modifiedAt = models.DefaultTime
     )
   }
 
@@ -56,7 +56,7 @@ case class GroupModel(id: StringContainer[IdField],
                       createdAt: ZonedDateTime,
                       modifiedAt: ZonedDateTime) extends Model[GroupField] {
 
-  val `type`: String = Model.GroupType
+  val `type`: String = models.GroupType
 
 }
 

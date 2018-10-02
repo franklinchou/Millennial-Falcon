@@ -18,7 +18,7 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     */
   def findAllGroups: Future[List[GroupModel]]
 
-  def findById(id: StringContainer[IdField]): Future[Option[GroupModel]]
+  def find(id: StringContainer[IdField]): Future[Option[GroupModel]]
 
   def add(m: GroupModel): Vertex
 

@@ -5,9 +5,9 @@ package object dao {
   // TODO Should be of type StringContainer[Key]
   val keys: Set[String] = {
     Set[String](
-      Model.UserType,
-      Model.GroupType,
-      Model.FeatureType
+      models.UserType,
+      models.GroupType,
+      models.FeatureType
     )
   }
 

@@ -18,10 +18,10 @@ object UserModel {
     * @return
     */
   implicit def vertex2Model(v: Vertex): UserModel = {
-    val id = v.property(Model.Id).value.toString
-    val name = v.property(Model.Name).value.toString
-    val createdAt = v.property(Model.CreatedAt).value.toString
-    val modifiedAt = v.property(Model.ModifiedAt).value.toString
+    val id = v.property(models.Id).value.toString
+    val name = v.property(models.Name).value.toString
+    val createdAt = v.property(models.CreatedAt).value.toString
+    val modifiedAt = v.property(models.ModifiedAt).value.toString
 
     UserModel
       .apply(
@@ -35,10 +35,10 @@ object UserModel {
 
   def apply(name: StringContainer[UserField]): UserModel = {
     UserModel(
-      id = Model.generateUUID[IdField],
+      id = models.generateUUID[IdField],
       name = name,
-      createdAt = Model.DefaultTime,
-      modifiedAt = Model.DefaultTime
+      createdAt = models.DefaultTime,
+      modifiedAt = models.DefaultTime
     )
   }
 
@@ -49,6 +49,6 @@ case class UserModel(id: StringContainer[IdField],
                      createdAt: ZonedDateTime,
                      modifiedAt: ZonedDateTime) extends Model[UserField] {
 
-  val `type`: String = Model.UserType
+  val `type`: String = models.UserType
 
 }

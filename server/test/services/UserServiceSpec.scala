@@ -32,10 +32,10 @@ class UserServiceSpec extends AsyncFunSpec {
       lazy val expected =
         jg
           .V()
-          .hasLabel(Model.UserType)
-          .has(Model.Name, "user1")
+          .hasLabel(models.UserType)
+          .has(models.Name, "user1")
           .next()
-          .property(Model.Name)
+          .property(models.Name)
           .value()
           .toString
 

@@ -15,6 +15,22 @@ import scala.util.{Failure, Success, Try}
 class GroupServiceJanus @Inject()()
                                  (implicit ec: ExecutionContext) extends GroupService {
 
+
+  /**
+    * Given the group id, find the associated vertex
+    *
+    * @param id Group id
+    * @return
+    */
+  private def findById(id: StringContainer[IdField]): Vertex = {
+    jg
+      .V()
+      .hasLabel(Model.GroupType)
+      .has(Model.Type, Model.GroupType)
+      .has(Model.Id, id.value)
+      .next()
+  }
+
   /**
     * Find all groups/clients
     *
@@ -37,19 +53,13 @@ class GroupServiceJanus @Inject()()
   }
 
 
-  def findById(id: StringContainer[IdField]): Future[Option[GroupModel]] = {
-    val model: Option[GroupModel] =
+  def find(id: StringContainer[IdField]): Future[Option[GroupModel]] =
+    Future {
       Try {
-        jg
-          .V()
-          .hasLabel(Model.GroupType)
-          .has(Model.Type, Model.GroupType)
-          .has(Model.Id, id.value)
-          .next()
+        findById(id)
       }.toOption.map(v => v: GroupModel)
+    }
 
-    Future { model }
-  }
 
   def add(m: GroupModel): Vertex =
     jg
@@ -63,18 +73,33 @@ class GroupServiceJanus @Inject()()
 
   def remove(id: StringContainer[IdField]): Boolean = {
     Try {
-      jg
-        .V()
-        .hasLabel(Model.GroupType)
-        .has(Model.Type, Model.GroupType)
-        .has(Model.Id, id.value)
-        .next()
-        .remove()
+      findById(id).remove()
     } match {
       case Success(_) => true
       case Failure(e) =>
+        val _ = jg.tx().rollback()
         Logger.error(s"Error when attempting to remove node: ${id.value}, $e")
         false
     }
   }
+
+  /**
+    * Create a new user and associate it with a given group
+    *
+    * @param id Group id
+    * @return
+    */
+  def associateUser(id: StringContainer[IdField]): Vertex = {
+
+    findById(id)
+      .addEdge()
+
+  }
+
+
+
+
+
+
+
 }

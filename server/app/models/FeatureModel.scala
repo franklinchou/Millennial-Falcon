@@ -11,7 +11,7 @@ case class FeatureModel(id: StringContainer[IdField],
                         createdAt: ZonedDateTime,
                         modifiedAt: ZonedDateTime) extends Model[FeatureField] {
 
-  val `type` = Model.FeatureType
+  val `type` = models.FeatureType
 
   def add(m: Model[FeatureField]): Vertex = ???
 }
