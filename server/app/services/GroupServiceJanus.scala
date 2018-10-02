@@ -4,15 +4,11 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.{IdField, UserField}
-import models.vertex
+import models.{edge, vertex}
 import models.vertex.{GroupModel, UserModel}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
-
-
-import models.edge
-
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -65,21 +61,29 @@ class GroupServiceJanus @Inject()(userService: UserServiceJanus)
     }
 
 
-  def add(m: GroupModel): Vertex =
-    jg
-      .addV(m.`type`)
-      .property(vertex.Type, m.`type`)
-      .property(vertex.Name, m.name.value)
-      .property(vertex.Id, m.id.value)
-      .property(vertex.CreatedAt, m.createdAt.toString)
-      .property(vertex.ModifiedAt, m.modifiedAt.toString)
-      .next()
+  def add(m: GroupModel): Vertex = {
+    val result =
+      jg
+        .addV(m.`type`)
+        .property(vertex.Type, m.`type`)
+        .property(vertex.Name, m.name.value)
+        .property(vertex.Id, m.id.value)
+        .property(vertex.CreatedAt, m.createdAt.toString)
+        .property(vertex.ModifiedAt, m.modifiedAt.toString)
+        .next()
+
+    val _ = jg.tx.commit()
+    result
+  }
+
 
   def remove(id: StringContainer[IdField]): Boolean = {
     Try {
       findById(id).remove()
     } match {
-      case Success(_) => true
+      case Success(_) =>
+        val _ = jg.tx.commit()
+        true
       case Failure(e) =>
         val _ = jg.tx().rollback()
         Logger.error(s"Error when attempting to remove group: ${id.value}, $e")
@@ -103,6 +107,7 @@ class GroupServiceJanus @Inject()(userService: UserServiceJanus)
     } match {
       case Success(g) =>
         user.addEdge(edge.User2FeatureEdge.label, findById(group))
+        val _ = jg.tx.commit()
         Some(user)
       case Failure(e) =>
         Logger.error(s"Error when attempting to find group, $e")

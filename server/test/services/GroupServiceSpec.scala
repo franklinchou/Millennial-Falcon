@@ -34,7 +34,7 @@ class GroupServiceSpec extends AsyncFunSpec {
       val addedUser = userService.add(fakeUserModel)
 
       val addedUserId = addedUser.id
-      
+
       assert(jg.V(addedUserId).out().toList.isEmpty)
     }
 

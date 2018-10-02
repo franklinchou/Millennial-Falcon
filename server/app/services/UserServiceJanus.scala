@@ -45,14 +45,18 @@ class UserServiceJanus @Inject()()
     val createdAt = m.createdAt.toString
     val modifiedAt = m.modifiedAt.toString
 
-    jg
-      .addV(m.`type`)
-      .property(vertex.Type, m.`type`)
-      .property(vertex.Name, m.name.value)
-      .property(vertex.Id, m.id.value)
-      .property(vertex.CreatedAt, createdAt)
-      .property(vertex.ModifiedAt, modifiedAt)
-      .next()
+    val result =
+      jg
+        .addV(m.`type`)
+        .property(vertex.Type, m.`type`)
+        .property(vertex.Name, m.name.value)
+        .property(vertex.Id, m.id.value)
+        .property(vertex.CreatedAt, createdAt)
+        .property(vertex.ModifiedAt, modifiedAt)
+        .next()
+
+    val _ = jg.tx.commit()
+    result
   }
 
   def remove(id: StringContainer[IdField]): Boolean = {
@@ -65,8 +69,11 @@ class UserServiceJanus @Inject()()
         .next()
         .remove()
     } match {
-      case Success(_) => true
+      case Success(_) =>
+        jg.tx.commit()
+        true
       case Failure(e) =>
+        val _ = jg.tx().rollback()
         Logger.error(s"Error when attempting to remove node: ${id.value}, $e")
         false
     }

@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
-import models.field.{GroupField, IdField}
+import models.field.{GroupField, IdField, UserField}
 import models.vertex.GroupModel
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -59,6 +59,38 @@ class GroupController @Inject()(cc: ControllerComponents,
         }
       } else {
         Future { BadRequest }
+      }
+    }
+  }
+
+  /**
+    * Create a new user and associate it with the given group.
+    *
+    * The group MUST exist prior to adding a user.
+    *
+    * POST => { "user" : "user-id" }
+    *
+    * @param groupId
+    * @return
+    */
+  def associateUser(groupId: String) = Action(parse.tolerantJson).async {
+    implicit request: Request[JsValue] => {
+      val body = request.body
+      val userId = (body \ "user").validate[String].get
+
+      val gid = StringContainer[IdField](groupId)  // wrapped group id
+      val uid = StringContainer[UserField](userId)
+      groupService.find(gid).map { g =>
+        if (g.isDefined) {
+
+          // Create new user
+          val _ = groupService.associateUser(gid, uid)
+
+          val model = g.get
+          Ok(Json.toJson(model))
+        } else {
+          NotFound
+        }
       }
     }
   }
