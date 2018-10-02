@@ -1,5 +1,3 @@
-import models.Model
-
 package object dao {
 
   // TODO Should be of type StringContainer[Key]

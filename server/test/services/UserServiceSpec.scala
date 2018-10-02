@@ -4,8 +4,8 @@ import java.util.NoSuchElementException
 
 import dao.JanusClient.jg
 import lib.StringContainer
+import models.UserModel
 import models.fields.UserField
-import models.{Model, UserModel}
 import org.scalatest.AsyncFunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
 

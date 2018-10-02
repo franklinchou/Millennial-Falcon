@@ -24,4 +24,12 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
 
   def remove(id: StringContainer[IdField]): Boolean
 
+  /**
+    * Create a new user and associate it with a given group
+    *
+    * @param id Group id
+    * @return
+    */
+  def associateUser(id: StringContainer[IdField]): Vertex
+
 }
