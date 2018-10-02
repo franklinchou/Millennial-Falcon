@@ -18,12 +18,18 @@ class HomeController @Inject()(cc: ControllerComponents,
 
     val janusConnectionStatus = EntitlementGraph.graph.isOpen
 
+    val cassandra = {
+      val host = config.get[String]("cassandra.host")
+      val port = config.get[String]("cassandra.port")
+      s"$host:$port"
+    }
+
     val json =
       Json.obj(
         "application" -> "Millennial Falcon",
         "environment" -> config.get[String]("env"),
-        // "cassandra" -> cassandra
-        "janus" -> { if (janusConnectionStatus) "online" else "offline" }
+        "janus" -> { if (janusConnectionStatus) "online" else "offline" },
+        "cassandra" -> cassandra
       )
 
     Ok(json)
