@@ -5,7 +5,7 @@ import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
 import models.vertex
-import models.vertex.UserModel
+import models.vertex.{GroupModel, UserModel}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
@@ -40,6 +40,15 @@ class UserServiceJanus @Inject()()
         .toList
         .map(v => v: UserModel)
     }
+
+  /**
+    * Find all groups that this user belongs to
+    *
+    * @param userId
+    * @return
+    */
+  def findAllGroups(userId: StringContainer[IdField]): Future[List[GroupModel]] = ???
+
 
   def find(id: StringContainer[IdField]): Future[Option[UserModel]] = {
     Future {

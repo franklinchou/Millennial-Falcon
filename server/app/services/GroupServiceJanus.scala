@@ -129,6 +129,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
     } match {
       case Success(g) =>
         findById(group).addEdge(edge.Group2UserEdge.label, user)
+        // user.addEdge(edge.Group2UserEdge.label, findById(group))
         val _ = jg.tx.commit()
         Some(user)
       case Failure(e) =>

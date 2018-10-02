@@ -25,7 +25,7 @@ class UserController @Inject()(cc: ControllerComponents,
   def showGroups(id: String) = Action.async {
     implicit rq: Request[AnyContent] =>
 
-      // TODO 
+      // TODO
       Future { Ok }
   }
 
