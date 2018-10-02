@@ -18,6 +18,12 @@ object JanusClient {
     EntitlementGraph.setUp(graph)
   }
 
+  // Uncomment this line if setting up graph on a new instance
+  // Re-comment once the graph is setup.
+  // TODO Hacky
+  // EntitlementGraph.setUp(graph)
+
+
   val jg: GraphTraversalSource = graph.traversal()
 
 }
