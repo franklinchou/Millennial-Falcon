@@ -22,7 +22,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @param id Group id
     * @return
     */
-  private def findById(id: StringContainer[IdField]): Vertex = {
+  def findById(id: StringContainer[IdField]): Vertex = {
     jg
       .V()
       .hasLabel(vertex.GroupType)

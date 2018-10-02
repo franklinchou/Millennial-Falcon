@@ -17,25 +17,17 @@ class GroupServiceSpec extends AsyncFunSpec {
 
   describe("Group Service") {
 
-    it("should allow user -> group association") {
+    it("should allow group -> user association") {
       val mockGroup = GroupModel.apply(StringContainer[GroupField]("mock-group"))
       val mockUserName = StringContainer[UserField]("mock-user")
 
       val groupId = mockGroup.id
       val addedGroup = groupService.add(mockGroup)
-      val result = groupService.associateUser(groupId, mockUserName).get  // return the resulting user as vertex
+      val result = groupService.associateUser(groupId, mockUserName)  // return the resulting user as vertex
 
-      val query = jg.V(result.id).out().toList
+      val query = jg.V(addedGroup.id()).out().toList
 
-      assert(query.contains(addedGroup))
-
-      // Negative test
-      val fakeUserModel = UserModel.apply(StringContainer[UserField]("fake-user"))
-      val addedUser = userService.add(fakeUserModel)
-
-      val addedUserId = addedUser.id
-
-      assert(jg.V(addedUserId).out().toList.isEmpty)
+      assert(query.contains(result.get))
     }
 
   }
