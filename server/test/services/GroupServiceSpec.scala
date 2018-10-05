@@ -1,11 +1,11 @@
 package services
 
+import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.{GroupField, UserField}
-import models.vertex.{GroupModel, UserModel}
+import models.vertex.GroupModel
 import org.scalatest.AsyncFunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
-import dao.JanusClient.jg
 
 class GroupServiceSpec extends AsyncFunSpec {
 
