@@ -41,14 +41,6 @@ class UserServiceJanus @Inject()()
         .map(v => v: UserModel)
     }
 
-  /**
-    * Find all groups that this user belongs to
-    *
-    * @param userId
-    * @return
-    */
-  def findAllGroups(userId: StringContainer[IdField]): Future[List[GroupModel]] = ???
-
 
   def find(id: StringContainer[IdField]): Future[Option[UserModel]] = {
     Future {
@@ -57,6 +49,22 @@ class UserServiceJanus @Inject()()
       }.toOption.map(v => v: UserModel)
     }
   }
+
+
+  /**
+    * Given a user id, find which group that user belongs to
+    *
+    * @param id
+    * @return
+    */
+  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]] = {
+    Try {
+      jg.V().hasLabel(vertex.GroupType).has(vertex.Type, vertex.GroupType)
+    }
+
+  }
+
+
 
   def add(m: UserModel): Vertex = {
 

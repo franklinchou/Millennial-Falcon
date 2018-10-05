@@ -13,15 +13,16 @@ abstract class UserService()(implicit ec: ExecutionContext) {
 
   def findAllUsers: Future[List[UserModel]]
 
+  def find(id: StringContainer[IdField]): Future[Option[UserModel]]
+
   /**
-    * Find all groups that this user belongs to
+    * Find which group a user belongs to
     *
-    * @param userId
     * @return
     */
-  def findAllGroups(userId: StringContainer[IdField]): Future[List[GroupModel]]
+  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]]
 
-  def find(id: StringContainer[IdField]): Future[Option[UserModel]]
+  def findById(id: StringContainer[IdField]): Future[Option[UserModel]]
 
   def add(m: UserModel): Vertex
 
