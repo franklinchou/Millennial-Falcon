@@ -4,8 +4,8 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
-import models.vertex
 import models.vertex.{GroupModel, UserModel}
+import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
@@ -22,7 +22,7 @@ class UserServiceJanus @Inject()()
     * @param id
     * @return
     */
-  private def findById(id: StringContainer[IdField]): Vertex = {
+  private def find(id: StringContainer[IdField]): Vertex = {
     jg
       .V()
       .hasLabel(vertex.UserType)
@@ -42,10 +42,10 @@ class UserServiceJanus @Inject()()
     }
 
 
-  def find(id: StringContainer[IdField]): Future[Option[UserModel]] = {
+  def findById(id: StringContainer[IdField]): Future[Option[UserModel]] = {
     Future {
       Try {
-        findById(id)
+        find(id)
       }.toOption.map(v => v: UserModel)
     }
   }
@@ -57,13 +57,19 @@ class UserServiceJanus @Inject()()
     * @param id
     * @return
     */
-  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]] = {
-    Try {
-      jg.V().hasLabel(vertex.GroupType).has(vertex.Type, vertex.GroupType)
+  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]] =
+    Future {
+
+      // predicate query (should only ever be 0 or 1)
+      jg
+        .V()
+        .has(vertex.Id, id.value)
+        .inE(edge.Group2UserEdge.label)
+        .toList
+        .headOption
+        .map(v => v.outVertex())
+        .map(c => c: GroupModel)
     }
-
-  }
-
 
 
   def add(m: UserModel): Vertex = {
@@ -87,7 +93,7 @@ class UserServiceJanus @Inject()()
 
   def remove(id: StringContainer[IdField]): Boolean = {
     Try {
-      findById(id).remove()
+      find(id).remove()
     } match {
       case Success(_) =>
         jg.tx.commit()

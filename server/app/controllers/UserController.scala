@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
-import models.field.IdField
+import models.field.{GroupField, IdField}
 import play.api.libs.json.Json
 import play.api.mvc._
 import services.UserService
@@ -28,15 +28,14 @@ class UserController @Inject()(cc: ControllerComponents,
     *
     */
   def whichGroup(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+    val groupId = StringContainer.apply[IdField](id)
     userService
-      .findAllUsers
+      .findGroup(groupId)
       .map { models =>
         val json = Json.toJson(models)
         Ok(json)
       }
   }
-
-
 
 
   /**

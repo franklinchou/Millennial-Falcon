@@ -13,8 +13,6 @@ abstract class UserService()(implicit ec: ExecutionContext) {
 
   def findAllUsers: Future[List[UserModel]]
 
-  def find(id: StringContainer[IdField]): Future[Option[UserModel]]
-
   /**
     * Find which group a user belongs to
     *
