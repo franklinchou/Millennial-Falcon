@@ -25,7 +25,10 @@ class UserController @Inject()(cc: ControllerComponents,
 
 
   /**
+    * Given a user id determine which group that user belongs to, or null
     *
+    * @param id
+    * @return
     */
   def whichGroup(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     val groupId = StringContainer.apply[IdField](id)
