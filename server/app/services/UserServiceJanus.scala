@@ -4,8 +4,8 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
-import models.vertex
-import models.vertex.UserModel
+import models.vertex.{GroupModel, UserModel}
+import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
@@ -15,6 +15,21 @@ import scala.util.{Failure, Success, Try}
 
 class UserServiceJanus @Inject()()
                                 (implicit ec: ExecutionContext) extends UserService {
+
+  /**
+    * Find a user by its id and return the user vertex
+    *
+    * @param id
+    * @return
+    */
+  private def find(id: StringContainer[IdField]): Vertex = {
+    jg
+      .V()
+      .hasLabel(vertex.UserType)
+      .has(vertex.Type, vertex.UserType)
+      .has(vertex.Id, id.value)
+      .next()
+  }
 
   def findAllUsers: Future[List[UserModel]] =
     Future.successful {
@@ -26,19 +41,41 @@ class UserServiceJanus @Inject()()
         .map(v => v: UserModel)
     }
 
-  def findById(id: StringContainer[IdField]): Future[Option[UserModel]] = {
-    val model: Option[UserModel] =
-      Try {
-        jg
-          .V()
-          .hasLabel(vertex.UserType)
-          .has(vertex.Type, vertex.UserType)
-          .has(vertex.Id, id.value)
-          .next()
-      }.toOption.map(v => v: UserModel)
 
-    Future { model }
+  def findById(id: StringContainer[IdField]): Future[Option[UserModel]] = {
+    Future {
+      Try {
+        find(id)
+      }.toOption.map(v => v: UserModel)
+    }
   }
+
+
+  /**
+    * Given a user id, find which group that user belongs to
+    *
+    * @param id
+    * @return
+    */
+  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]] =
+    Future {
+
+      // If the query fails return None
+      val query =
+        Try {
+          // predicate query (should only ever be 0 or 1)
+          jg
+            .V()
+            .has(vertex.Id, id.value)
+            .inE(edge.Group2UserEdge.label)
+            .toList
+        }.toOption
+
+      val vs: Option[List[Vertex]] = query.map(q => q.map(v => v.outVertex()))
+      val v: Option[Vertex] = vs.flatMap(v => v.headOption)
+      v.map(vm => vm: GroupModel)
+    }
+
 
   def add(m: UserModel): Vertex = {
 
@@ -61,13 +98,7 @@ class UserServiceJanus @Inject()()
 
   def remove(id: StringContainer[IdField]): Boolean = {
     Try {
-      jg
-        .V()
-        .hasLabel(vertex.UserType)
-        .has(vertex.Type, vertex.UserType)
-        .has(vertex.Id, id.value)
-        .next()
-        .remove()
+      find(id).remove()
     } match {
       case Success(_) =>
         jg.tx.commit()
