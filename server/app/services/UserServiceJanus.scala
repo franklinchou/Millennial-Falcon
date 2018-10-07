@@ -60,15 +60,20 @@ class UserServiceJanus @Inject()()
   def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]] =
     Future {
 
-      // predicate query (should only ever be 0 or 1)
-      jg
-        .V()
-        .has(vertex.Id, id.value)
-        .inE(edge.Group2UserEdge.label)
-        .toList
-        .headOption
-        .map(v => v.outVertex())
-        .map(c => c: GroupModel)
+      // If the query fails return None
+      val query =
+        Try {
+          // predicate query (should only ever be 0 or 1)
+          jg
+            .V()
+            .has(vertex.Id, id.value)
+            .inE(edge.Group2UserEdge.label)
+            .toList
+        }.toOption
+
+      val vs: Option[List[Vertex]] = query.map(q => q.map(v => v.outVertex()))
+      val v: Option[Vertex] = vs.flatMap(v => v.headOption)
+      v.map(vm => vm: GroupModel)
     }
 
 
