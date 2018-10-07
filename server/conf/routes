@@ -10,8 +10,9 @@ DELETE  /users/:id                  controllers.UserController.delete(id: String
 GET     /groups                     controllers.GroupController.index
 GET     /groups/:id                 controllers.GroupController.find(id: String)
 GET     /groups/:id/users           controllers.GroupController.showUsers(id: String)
-POST    /groups/:id/users           controllers.GroupController.associateUser(id: String)
 POST    /groups                     controllers.GroupController.create
+POST    /groups/:id/users           controllers.GroupController.associateUser(id: String)
+DELETE  /groups/:id                 controllers.GroupController.delete(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

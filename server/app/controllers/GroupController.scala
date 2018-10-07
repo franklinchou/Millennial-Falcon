@@ -15,6 +15,11 @@ class GroupController @Inject()(cc: ControllerComponents,
                                 groupService: GroupService)
                                (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
+  /**
+    * Find all the groups
+    *
+    * @return
+    */
   def index() = Action.async { implicit rq: Request[AnyContent] =>
     groupService
       .findAllGroups
@@ -114,5 +119,21 @@ class GroupController @Inject()(cc: ControllerComponents,
       }
     }
   }
+
+  /**
+    * Delete a group based on its id
+    *
+    * @param id
+    * @return
+    */
+  def delete(id: String) = Action.async { implicit request: Request[AnyContent] =>
+    val groupId = StringContainer.apply[IdField](id)
+    if (groupService.remove(groupId)) {
+      Future { NoContent }
+    } else {
+      Future { InternalServerError }
+    }
+  }
+
 
 }

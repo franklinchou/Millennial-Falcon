@@ -99,6 +99,12 @@ class GroupServiceJanus @Inject()(userService: UserService)
   }
 
 
+  /**
+    * Remove a user from the graph given its id
+    *
+    * @param id
+    * @return
+    */
   def remove(id: StringContainer[IdField]): Boolean = {
     Try {
       findById(id).remove()
