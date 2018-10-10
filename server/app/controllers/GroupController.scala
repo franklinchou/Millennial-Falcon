@@ -4,8 +4,8 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.{GroupField, IdField, UserField}
-import models.vertex.{GroupModel, GroupType}
-import play.api.libs.json.{JsNull, JsObject, JsValue, Json}
+import models.vertex.{GroupModel, GroupType, UserModel}
+import play.api.libs.json._
 import play.api.mvc._
 import services.GroupService
 
@@ -59,9 +59,15 @@ class GroupController @Inject()(cc: ControllerComponents,
 
     groupService
       .findAllUsers(groupIdContainer)
-      .map { m =>
-        val json = Json.toJson(m)
-        Ok(json)
+      .map { models =>
+        if (models.isEmpty) {
+          Ok(JsArray.empty)
+        } else {
+          val resources = models.map(m => Json.toJsObject[UserModel](m))
+          val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+          val json = Json.toJson(document)
+          Ok(json)
+        }
       }
   }
 
