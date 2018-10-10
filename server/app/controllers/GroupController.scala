@@ -4,7 +4,7 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.{GroupField, IdField, UserField}
-import models.vertex.{GroupModel, GroupType, UserModel}
+import models.vertex.{GroupModel, GroupType, UserModel, UserType}
 import play.api.libs.json._
 import play.api.mvc._
 import services.GroupService
@@ -75,13 +75,10 @@ class GroupController @Inject()(cc: ControllerComponents,
   /**
     * Create a new group
     *
-    * POST => { "group" : "test-group" }
-    *
     * @return
     */
   def create() = Action(parse.tolerantJson).async {
     implicit rq: Request[JsValue] => {
-
       val body = rq.body
       val data = body \ "data"
 
@@ -110,29 +107,34 @@ class GroupController @Inject()(cc: ControllerComponents,
     *
     * The group MUST exist prior to adding a user.
     *
-    * POST => { "user" : "user-id" }
-    *
     * @param groupId
     * @return
     */
   def associateUser(groupId: String) = Action(parse.tolerantJson).async {
     implicit request: Request[JsValue] => {
       val body = request.body
-      val userId = (body \ "user").validate[String].get
+      val data = body \ "data"
 
-      val gid = StringContainer[IdField](groupId)  // wrapped group id
-      val uid = StringContainer[UserField](userId)
-      groupService.find(gid).map { g =>
-        if (g.isDefined) {
+      val typeOpt = (data \ "type").validate[String].asOpt.filter(_.equals(UserType))
+      val userIdOpt = (data \ "attributes" \ "user").validate[String].asOpt
 
-          // Create new user
-          val _ = groupService.associateUser(gid, uid)
+      val validate = Seq(userIdOpt, typeOpt).forall(_.isDefined)
 
-          val model = g.get
-          Ok(Json.toJson(model))
-        } else {
-          NotFound
+      if (validate) {
+        val gid = StringContainer[IdField](groupId)  // wrapped group id
+        val uid = StringContainer[UserField](userIdOpt.get)
+        groupService.find(gid).map { g =>
+          if (g.isDefined) {
+            val _ = groupService.associateUser(gid, uid)  // Create new user
+            val json = Json.toJsObject[GroupModel](g.get)
+            val document = DocumentSingle(json, Seq.empty[JsObject])
+            Created(Json.toJson(document))
+          } else {
+            NotFound
+          }
         }
+      } else {
+        Future { BadRequest }
       }
     }
   }

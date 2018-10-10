@@ -7,10 +7,21 @@ import lib.StringContainer
 import models.field.{IdField, UserField}
 import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
+import play.api.libs.json.{Json, OWrites}
 
 object UserModel {
-
-  implicit lazy val jsFormat = Jsonx.formatCaseClass[UserModel]
+  
+  implicit lazy val jsWriter: OWrites[UserModel] = (um: UserModel) => {
+    Json.obj(
+      "type" -> um.`type`,
+      "id" -> um.id.value,
+      "attributes" -> Json.obj(
+        "name" -> um.name,
+        "created-at" -> um.createdAt,
+        "modified-at" -> um.modifiedAt
+      )
+    )
+  }
 
   /**
     * Convert a user vertex to a [[UserModel]]
