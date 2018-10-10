@@ -25,10 +25,14 @@ class GroupController @Inject()(cc: ControllerComponents,
     groupService
       .findAllGroups
       .map { models =>
-        val resources = models.map(m => Json.toJsObject[GroupModel](m))
-        val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
-        val json = Json.toJson(document)
-        Ok(json)
+        if (models.isEmpty) {
+          Ok(JsArray.empty)  // TODO Get rid of this ugly logic by wrapping in a Monad?
+        } else {
+          val resources = models.map(m => Json.toJsObject[GroupModel](m))
+          val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+          val json = Json.toJson(document)
+          Ok(json)
+        }
       }
   }
 

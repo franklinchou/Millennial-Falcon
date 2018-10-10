@@ -2,8 +2,10 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
+import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.{GroupField, IdField}
-import play.api.libs.json.Json
+import models.vertex.{GroupModel, UserModel}
+import play.api.libs.json.{JsArray, JsNull, JsObject, Json}
 import play.api.mvc._
 import services.UserService
 
@@ -18,8 +20,14 @@ class UserController @Inject()(cc: ControllerComponents,
     userService
       .findAllUsers
       .map { models =>
-        val json = Json.toJson(models)
-        Ok(json)
+        if (models.isEmpty) {
+          Ok(JsArray.empty)
+        } else {
+          val resources = models.map(um => Json.toJsObject[UserModel](um))
+          val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+          val json = Json.toJson(document)
+          Ok(json)
+        }
       }
   }
 
@@ -34,10 +42,16 @@ class UserController @Inject()(cc: ControllerComponents,
     val groupId = StringContainer.apply[IdField](id)
     userService
       .findGroup(groupId)
-      .map { models =>
-        val json = Json.toJson(models)
-        Ok(json)
+      .map { userModelOpt =>
+        userModelOpt
+          .map { m =>
+            val json = Json.toJsObject[GroupModel](m)
+            val document = DocumentSingle(json, Seq.empty[JsObject])
+            Ok(Json.toJson(document))
+          }
+          .getOrElse(Ok(JsNull))
       }
+
   }
 
 
