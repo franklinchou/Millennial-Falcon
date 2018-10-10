@@ -5,7 +5,7 @@ import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.{GroupField, IdField, UserField}
 import models.vertex.{GroupModel, GroupType}
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsNull, JsObject, JsValue, Json}
 import play.api.mvc._
 import services.GroupService
 
@@ -35,9 +35,14 @@ class GroupController @Inject()(cc: ControllerComponents,
   def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
       .find(StringContainer.apply[IdField](id))
-      .map { m =>
-        val json = Json.toJson(m)
-        Ok(json)
+      .map { groupModelOpt =>
+        groupModelOpt
+          .map { m =>  // TODO Change to for-comprehension?
+            val json = Json.toJsObject[GroupModel](m)
+            val document = DocumentSingle(json, Seq.empty[JsObject])
+            Ok(Json.toJson(document))
+          }
+          .getOrElse(Ok(JsNull))
       }
   }
 
