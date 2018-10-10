@@ -3,7 +3,7 @@ package controllers
 import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
-import models.field.{GroupField, IdField}
+import models.field.IdField
 import models.vertex.{GroupModel, UserModel}
 import play.api.libs.json.{JsArray, JsNull, JsObject, Json}
 import play.api.mvc._
