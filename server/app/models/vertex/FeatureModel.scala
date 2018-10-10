@@ -24,7 +24,7 @@ object FeatureModel {
 
   /**
     * Marshall a feature vertex to [[FeatureModel]]
-    * 
+    *
     * @param v
     * @return
     */
@@ -43,6 +43,17 @@ object FeatureModel {
       )
   }
 
+
+  def apply(feature: StringContainer[FeatureField]): FeatureModel = {
+    FeatureModel(
+      id = generateUUID[IdField],
+      name = feature,
+      createdAt =  DefaultTime,
+      modifiedAt = DefaultTime
+    )
+  }
+
+
 }
 
 
@@ -51,6 +62,6 @@ case class FeatureModel(id: StringContainer[IdField],
                         createdAt: ZonedDateTime,
                         modifiedAt: ZonedDateTime) extends Model[FeatureField] {
 
-  val `type` = vertex.FeatureType
+  val `type`: String = vertex.FeatureType
 
 }
