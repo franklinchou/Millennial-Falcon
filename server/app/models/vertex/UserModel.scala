@@ -2,7 +2,6 @@ package models.vertex
 
 import java.time.ZonedDateTime
 
-import ai.x.play.json.Jsonx
 import lib.StringContainer
 import models.field.{IdField, UserField}
 import models.vertex
@@ -10,7 +9,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.libs.json.{Json, OWrites}
 
 object UserModel {
-  
+
   implicit lazy val jsWriter: OWrites[UserModel] = (um: UserModel) => {
     Json.obj(
       "type" -> um.`type`,

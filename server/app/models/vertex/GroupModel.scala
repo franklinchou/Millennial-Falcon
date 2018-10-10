@@ -15,7 +15,7 @@ object GroupModel {
       "type" -> gm.`type`,
       "id" -> gm.id.value,
       "attributes" -> Json.obj(
-        "name" -> gm.name,
+        "group" -> gm.name,
         "created-at" -> gm.createdAt.toString,
         "modified-at" -> gm.modifiedAt.toString
       )
