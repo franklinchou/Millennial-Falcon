@@ -10,9 +10,6 @@ import models.vertex.UserModel
 import org.scalatest.AsyncFunSpec
 import play.api.inject.guice.GuiceApplicationBuilder
 
-import scala.concurrent.Await
-import scala.concurrent.duration.{Duration, SECONDS}
-
 class UserServiceSpec extends AsyncFunSpec {
 
   // https://www.playframework.com/documentation/2.6.x/ScalaTestingWithGuice

@@ -2,15 +2,26 @@ package models.vertex
 
 import java.time.ZonedDateTime
 
-import ai.x.play.json.Jsonx
 import lib.StringContainer
 import models.field.{GroupField, IdField}
 import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
+import play.api.libs.json.{Json, OWrites}
 
 object GroupModel {
 
-  implicit lazy val jsFormat = Jsonx.formatCaseClass[GroupModel]
+  implicit lazy val jsWriter: OWrites[GroupModel] = (gm: GroupModel) => {
+    Json.obj(
+      "type" -> gm.`type`,
+      "id" -> gm.id.value,
+      "attributes" -> Json.obj(
+        "group" -> gm.name,
+        "created-at" -> gm.createdAt.toString,
+        "modified-at" -> gm.modifiedAt.toString
+      )
+    )
+  }
+
 
   /**
     * Convert a group vertex to a [[GroupModel]]
@@ -35,7 +46,7 @@ object GroupModel {
 
 
   /**
-    * Create a [[UserModel]]
+    * Create a [[GroupModel]]
     *
     * @param name Group/Client name
     * @return

@@ -15,4 +15,5 @@ case class FeatureModel(id: StringContainer[IdField],
   val `type` = vertex.FeatureType
 
   def add(m: Model[FeatureField]): Vertex = ???
+
 }
