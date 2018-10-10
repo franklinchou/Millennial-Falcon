@@ -48,13 +48,13 @@ object GroupModel {
   /**
     * Create a [[GroupModel]]
     *
-    * @param name Group/Client name
+    * @param group Group/Client name
     * @return
     */
-  def apply(name: StringContainer[GroupField]): GroupModel = {
+  def apply(group: StringContainer[GroupField]): GroupModel = {
     GroupModel(
       id = vertex.generateUUID[IdField],
-      name = name,
+      name = group,
       createdAt = vertex.DefaultTime,
       modifiedAt = vertex.DefaultTime
     )
