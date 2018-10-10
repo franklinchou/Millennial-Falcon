@@ -2,9 +2,10 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
+import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.{GroupField, IdField, UserField}
-import models.vertex.GroupModel
-import play.api.libs.json.{JsValue, Json}
+import models.vertex.{GroupModel, GroupType}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import services.GroupService
 
@@ -24,7 +25,9 @@ class GroupController @Inject()(cc: ControllerComponents,
     groupService
       .findAllGroups
       .map { models =>
-        val json = Json.toJson(models)
+        val resources = models.map(m => Json.toJsObject[GroupModel](m))
+        val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+        val json = Json.toJson(document)
         Ok(json)
       }
   }
@@ -69,18 +72,21 @@ class GroupController @Inject()(cc: ControllerComponents,
     implicit rq: Request[JsValue] => {
 
       val body = rq.body
+      val data = body \ "data"
 
-      val groupAsOpt = (body \ "group").validate[String].asOpt
+      val typeAsOpt = (data \ "type").validate[String].asOpt.filter(_.equals(GroupType))
+      val groupAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
 
-      val validate = Seq(groupAsOpt).forall(_.isDefined)
+      val validate = Seq(groupAsOpt, typeAsOpt).forall(_.isDefined)
 
       if (validate) {
         val group = StringContainer.apply[GroupField](groupAsOpt.get)
         val model = GroupModel.apply(group)
         Future {
           val _ = groupService.add(model)
-          val json = Json.toJson[GroupModel](model)
-          Created(json)
+          val json = Json.toJsObject[GroupModel](model)
+          val document = DocumentSingle(json, Seq.empty[JsObject])
+          Created(Json.toJson(document))
         }
       } else {
         Future { BadRequest }
