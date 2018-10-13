@@ -1,8 +1,10 @@
 package controllers
 
 import javax.inject.{Inject, Singleton}
-import lib.jsonapi.{DocumentMany, DocumentSingle}
-import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
+import lib.StringContainer
+import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
+import models.field.IdField
+import play.api.libs.json._
 import play.api.mvc._
 import resources.FeatureResource
 import services.FeatureService
@@ -31,6 +33,23 @@ class FeatureController @Inject()(cc: ControllerComponents,
   }
 
 
+  def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+    val idContainer = StringContainer.apply[IdField](id)
+    for {
+      featureOpt <- featureService.find(idContainer)
+    } yield {
+      featureOpt
+        .map { f =>
+          val resource = FeatureResource(f)
+          val document = DocumentSingle(resource, Seq.empty[Resource])
+          val json = Json.toJson(document)
+          Ok(json)
+        }
+        .getOrElse(Ok(JsNull))
+    }
+  }
+
+
   def create() = Action(parse.tolerantJson) {
     implicit request: Request[JsValue] =>
       val body = request.body
@@ -44,7 +63,7 @@ class FeatureController @Inject()(cc: ControllerComponents,
           val model = data.featureModel
           val _ = featureService.add(model)
           val resource = FeatureResource(model)
-          val document = DocumentSingle(resource, Seq.empty[JsObject])
+          val document = DocumentSingle(resource, Seq.empty[Resource])
           val json = Json.toJson(document)
           Created(json)
         }

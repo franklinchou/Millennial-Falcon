@@ -1,6 +1,6 @@
 package lib.jsonapi
 
-import play.api.libs.json.{JsObject, Json, OWrites}
+import play.api.libs.json.{Json, OWrites}
 
 object DocumentSingle {
 
@@ -9,4 +9,4 @@ object DocumentSingle {
 }
 
 
-case class DocumentSingle(data: Resource, included: Seq[JsObject]) extends Document
+case class DocumentSingle(data: Resource, included: Seq[Resource]) extends Document

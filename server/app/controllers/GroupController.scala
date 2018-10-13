@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
-import lib.jsonapi.{DocumentMany, DocumentSingle}
+import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.{GroupField, IdField}
 import models.vertex.{GroupModel, GroupType}
 import play.api.libs.json._
@@ -44,7 +44,7 @@ class GroupController @Inject()(cc: ControllerComponents,
         groupModelOpt
           .map { m => // TODO Change to for-comprehension?
             val resource = GroupResource(m)
-            val document = DocumentSingle(resource, Seq.empty[JsObject])
+            val document = DocumentSingle(resource, Seq.empty[Resource])
             val json = Json.toJson(document)
             Ok(json)
           }
@@ -99,7 +99,7 @@ class GroupController @Inject()(cc: ControllerComponents,
         Future {
           val _ = groupService.add(model)
           val resource = GroupResource(model)
-          val document = DocumentSingle(resource, Seq.empty[JsObject])
+          val document = DocumentSingle(resource, Seq.empty[Resource])
           val json = Json.toJson(document)
           Created(json)
         }
@@ -129,7 +129,7 @@ class GroupController @Inject()(cc: ControllerComponents,
             groupOpt.fold[Result](NotFound)(_ => {
               val _ = groupService.associateUser(groupContainer, user.name)
               val resource = UserResource(user)
-              val document = DocumentSingle(resource, Seq.empty[JsObject])
+              val document = DocumentSingle(resource, Seq.empty[Resource])
               val json = Json.toJson(document)
               Created(json)
             }

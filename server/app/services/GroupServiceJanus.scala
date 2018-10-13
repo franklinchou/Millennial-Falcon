@@ -22,7 +22,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @param id Group id
     * @return
     */
-  def findById(id: StringContainer[IdField]): Vertex = {
+  def findVertex(id: StringContainer[IdField]): Vertex = {
     jg
       .V()
       .hasLabel(vertex.GroupType)
@@ -30,6 +30,20 @@ class GroupServiceJanus @Inject()(userService: UserService)
       .has(vertex.Id, id.value)
       .next()
   }
+
+  /**
+    * Safe find for external use.
+    *
+    * @param id
+    * @return
+    */
+  def find(id: StringContainer[IdField]): Future[Option[GroupModel]] =
+    Future {
+      Try {
+        findVertex(id)
+      }.toOption.map(v => v: GroupModel)
+    }
+
 
   /**
     * Find all groups/clients
@@ -60,7 +74,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
     */
   def findAllUsers(groupId: StringContainer[IdField]): Future[List[UserModel]] = {
     Try {
-      val groupVertex = findById(groupId)
+      val groupVertex = findVertex(groupId)
       jg
         .V(groupVertex.id)
         .out()
@@ -73,14 +87,6 @@ class GroupServiceJanus @Inject()(userService: UserService)
         Future { List.empty[UserModel] }
     }
   }
-
-
-  def find(id: StringContainer[IdField]): Future[Option[GroupModel]] =
-    Future {
-      Try {
-        findById(id)
-      }.toOption.map(v => v: GroupModel)
-    }
 
 
   def add(m: GroupModel): Vertex = {
@@ -100,26 +106,6 @@ class GroupServiceJanus @Inject()(userService: UserService)
 
 
   /**
-    * Remove a user from the graph given its id
-    *
-    * @param id
-    * @return
-    */
-  def remove(id: StringContainer[IdField]): Boolean = {
-    Try {
-      findById(id).remove()
-    } match {
-      case Success(_) =>
-        val _ = jg.tx.commit()
-        true
-      case Failure(e) =>
-        val _ = jg.tx().rollback()
-        Logger.error(s"Error when attempting to remove group: ${id.value}, $e")
-        false
-    }
-  }
-
-  /**
     * Create a new user and associate it with a given group
     *
     * @param group Group id
@@ -131,15 +117,36 @@ class GroupServiceJanus @Inject()(userService: UserService)
     val user: Vertex = userService.add(userModel)
 
     Try {
-      findById(group)
+      findVertex(group)
     } match {
       case Success(g) =>
-        findById(group).addEdge(edge.Group2UserEdge.label, user)
+        findVertex(group).addEdge(edge.Group2UserEdge.label, user)
         val _ = jg.tx.commit()
         Some(user)
       case Failure(e) =>
         Logger.error(s"Error when attempting to find group, $e")
         None
+    }
+  }
+
+
+  /**
+    * Remove a user from the graph given its id
+    *
+    * @param id
+    * @return
+    */
+  def remove(id: StringContainer[IdField]): Boolean = {
+    Try {
+      findVertex(id).remove()
+    } match {
+      case Success(_) =>
+        val _ = jg.tx.commit()
+        true
+      case Failure(e) =>
+        val _ = jg.tx().rollback()
+        Logger.error(s"Error when attempting to remove group: ${id.value}, $e")
+        false
     }
   }
 

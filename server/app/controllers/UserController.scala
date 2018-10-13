@@ -2,11 +2,11 @@ package controllers
 
 import javax.inject._
 import lib.StringContainer
-import lib.jsonapi.{DocumentMany, DocumentSingle}
+import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.IdField
-import play.api.libs.json.{JsArray, JsNull, JsObject, Json}
+import play.api.libs.json._
 import play.api.mvc._
-import resources.{GroupResource, UserResource}
+import resources.{FeatureIdResource, GroupResource, UserResource}
 import services.UserService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,12 +46,44 @@ class UserController @Inject()(cc: ControllerComponents,
         userModelOpt
           .map { m =>
             val json = GroupResource(m)
-            val document = DocumentSingle(json, Seq.empty[JsObject])
+            val document = DocumentSingle(json, Seq.empty[Resource])
             Ok(Json.toJson(document))
           }
           .getOrElse(Ok(JsNull))
       }
 
+  }
+
+
+  /**
+    * Given a user id associate features to that user
+    *
+    * @param id
+    */
+  def associateFeatures(id: String) = Action(parse.tolerantJson).async {
+    implicit rq: Request[JsValue] => {
+
+      val body = rq.body
+      val userContainer = StringContainer[IdField](id)
+
+      body.validate[List[FeatureIdResource]].fold[Future[Result]](
+        _ => Future { BadRequest },
+        valid => {
+          userService.find(userContainer).map { userOpt =>
+            userOpt.fold[Result](NotFound)(user => {
+              valid
+                .map(featureId => StringContainer.apply[IdField](featureId.id))
+                .map(featureContainer => userService.associateFeature(userContainer, featureContainer))
+              val resource = UserResource(user)
+              val associated = valid
+              val document = DocumentSingle(resource, associated)
+              val json = Json.toJson(document)
+              Created(json)
+            })
+          }
+        }
+      )
+    }
   }
 
 
