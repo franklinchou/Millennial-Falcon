@@ -2,25 +2,18 @@ package models.vertex
 
 import java.time.ZonedDateTime
 
+import ai.x.play.json.Jsonx
 import lib.StringContainer
 import models.field.{IdField, UserField}
 import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.OFormat
 
 object UserModel {
 
-  implicit lazy val jsWriter: OWrites[UserModel] = (um: UserModel) => {
-    Json.obj(
-      "type" -> um.`type`,
-      "id" -> um.id.value,
-      "attributes" -> Json.obj(
-        "name" -> um.name,
-        "created-at" -> um.createdAt,
-        "modified-at" -> um.modifiedAt
-      )
-    )
-  }
+
+  implicit lazy val jsonFormat: OFormat[UserModel] = Jsonx.formatCaseClass[UserModel]
+
 
   /**
     * Convert a user vertex to a [[UserModel]]
