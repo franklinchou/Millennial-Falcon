@@ -6,7 +6,7 @@ import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.IdField
 import play.api.libs.json._
 import play.api.mvc._
-import resources.{FeatureResource, GroupResource}
+import resources.FeatureResource
 import services.FeatureService
 
 import scala.concurrent.ExecutionContext
