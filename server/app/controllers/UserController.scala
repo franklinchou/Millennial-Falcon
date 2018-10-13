@@ -106,6 +106,17 @@ class UserController @Inject()(cc: ControllerComponents,
     }
   }
 
+  /**
+    * Update the given user to a new group
+    *
+    * @param id
+    */
+  def updateGroup(id: String) = Action(parse.tolerantJson).async {
+    implicit rq: Request[JsValue] => {
+      Future { Ok }
+    }
+  }
+
 
   /**
     * Remove the relationship between user <> feature
