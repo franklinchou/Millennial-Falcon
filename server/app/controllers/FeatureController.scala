@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 import lib.StringContainer
-import lib.jsonapi.{DocumentMany, DocumentSingle}
+import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.IdField
 import play.api.libs.json._
 import play.api.mvc._
@@ -41,7 +41,7 @@ class FeatureController @Inject()(cc: ControllerComponents,
       featureOpt
         .map { f =>
           val resource = FeatureResource(f)
-          val document = DocumentSingle(resource, Seq.empty[JsObject])
+          val document = DocumentSingle(resource, Seq.empty[Resource])
           val json = Json.toJson(document)
           Ok(json)
         }
@@ -63,7 +63,7 @@ class FeatureController @Inject()(cc: ControllerComponents,
           val model = data.featureModel
           val _ = featureService.add(model)
           val resource = FeatureResource(model)
-          val document = DocumentSingle(resource, Seq.empty[JsObject])
+          val document = DocumentSingle(resource, Seq.empty[Resource])
           val json = Json.toJson(document)
           Created(json)
         }

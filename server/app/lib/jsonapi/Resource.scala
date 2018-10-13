@@ -1,6 +1,6 @@
 package lib.jsonapi
 
-import play.api.libs.json.{JsObject, Json, Writes}
+import play.api.libs.json._
 
 object Resource {
 
@@ -10,6 +10,10 @@ object Resource {
       "type" -> resource.`type`,
       "attributes" -> resource.attributes
     )
+  }
+
+  implicit val reads: Reads[Seq[Resource]] = (json: JsValue) => {
+    JsSuccess(Seq.empty[Resource])
   }
 
 }
