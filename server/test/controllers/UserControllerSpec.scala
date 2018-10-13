@@ -11,6 +11,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
+import resources.UserResource
 import services.UserService
 
 import scala.concurrent.Future
@@ -32,7 +33,7 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
         UserModel.apply(StringContainer.apply("mock-2"))
       )
 
-    val jsonModels: Seq[JsObject] = models.map(um => Json.toJsObject[UserModel](um))
+    val userResources: Seq[UserResource] = models.map(um => UserResource(um))
 
     "show all users" in {
       when(mockUserService.findAllUsers).thenReturn(Future { models })
@@ -42,8 +43,8 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
       status(method)(Timeout(5.seconds)) mustBe OK
 
       val content = contentAsJson(method)(Timeout(5.seconds))
-      val expected = Json.toJson(DocumentMany(jsonModels, Seq.empty[JsObject], JsObject.empty))
-
+      val documents = DocumentMany(userResources, Seq.empty[JsObject], JsObject.empty)
+      val expected = Json.toJson(documents)
       assert(content == expected)
     }
 
