@@ -113,7 +113,7 @@ object EntitlementGraph {
 
     // Index products by name
     mgmt
-      .buildIndex(dao.byProductNameComposite, classOf[Vertex])
+      .buildIndex(dao.byFeatureNameComposite, classOf[Vertex])
       .addKey(typeProperty)
       .addKey(nameProperty)
       .indexOnly(productLabel)

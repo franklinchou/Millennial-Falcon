@@ -24,6 +24,7 @@ object JanusClient {
   if (setup) {
     Logger.info("Setting up graph...")
     EntitlementGraph.setUp(graph)
+    Logger.info("Graph setup complete.")
   }
 
   val jg: GraphTraversalSource = graph.traversal()

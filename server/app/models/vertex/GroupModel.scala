@@ -37,7 +37,7 @@ object GroupModel {
 
     GroupModel
       .apply(
-        id = StringContainer.apply[IdField](id),
+        id = StringContainer.apply[IdField](""),
         name = StringContainer.apply[GroupField](group),
         createdAt = ZonedDateTime.parse(createdAt),
         modifiedAt = ZonedDateTime.parse(modifiedAt)

@@ -24,7 +24,7 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     *
     * @return
     */
-  def findAllGroups: Future[List[GroupModel]]
+  def findAllGroups: Future[Seq[GroupModel]]
 
   /**
     * Find all the users associated with a given group
