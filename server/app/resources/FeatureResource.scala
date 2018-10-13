@@ -1,32 +1,31 @@
 package resources
 
-import lib.StringContainer
-import models.field.FeatureField
+import ai.x.play.json.Jsonx
+import lib.jsonapi.Resource
+import models.vertex
 import models.vertex.FeatureModel
-import play.api.libs.json._
+import play.api.libs.json.{JsObject, Json, OFormat}
+
 
 object FeatureResource {
 
-  implicit val reads: Reads[FeatureResource] = (js: JsValue) => {
-    val body = js \ "data"
-    val attributesOpt = (body \ "attributes").validate[JsObject].asOpt
-
-    // Valid JsonApi resource
-    if (attributesOpt.isDefined) {
-      // TODO Abstract this to a outside Resource wrapper. Maybe a Monad?
-      val attributes = attributesOpt.get
-      val feature = (attributes \ "feature").validate[String].get
-      val model =
-        FeatureModel.apply(
-          StringContainer.apply[FeatureField](feature)
-        )
-      JsSuccess(FeatureResource(model))
-    } else {
-      JsError()
-    }
-  }
+  implicit lazy val jsonFormat: OFormat[FeatureResource] = Jsonx.formatCaseClass[FeatureResource]
 
 }
 
 
-case class FeatureResource(model: FeatureModel)
+
+case class FeatureResource(featureModel: FeatureModel) extends Resource {
+
+  val `type`: String = vertex.FeatureType
+
+  val id: String = featureModel.id.value
+
+  lazy val attributes: JsObject =
+    Json.obj(
+      "feature" -> featureModel.name,
+      "created-at" -> featureModel.createdAt,
+      "modified-at" -> featureModel.modifiedAt
+    )
+
+}

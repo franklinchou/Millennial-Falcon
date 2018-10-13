@@ -9,4 +9,4 @@ object DocumentSingle {
 }
 
 
-case class DocumentSingle(data: JsObject, included: Seq[JsObject]) extends Document
+case class DocumentSingle(data: Resource, included: Seq[JsObject]) extends Document

@@ -2,25 +2,18 @@ package models.vertex
 
 import java.time.ZonedDateTime
 
+import ai.x.play.json.Jsonx
 import lib.StringContainer
 import models.field.{FeatureField, IdField}
 import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.{Json, OFormat, OWrites}
 
 object FeatureModel {
 
-  implicit lazy val jsWriter: OWrites[FeatureModel] = (fm: FeatureModel) => {
-    Json.obj(
-      "type" -> fm.`type`,
-      "id" -> fm.id.value,
-      "attributes" -> Json.obj(
-        "feature" -> fm.name,
-        "created-at" -> fm.createdAt.toString,
-        "modified-at" -> fm.modifiedAt.toString
-      )
-    )
-  }
+
+  implicit lazy val jsonFormat: OFormat[FeatureModel] = Jsonx.formatCaseClass[FeatureModel]
+
 
   /**
     * Marshall a feature vertex to [[FeatureModel]]

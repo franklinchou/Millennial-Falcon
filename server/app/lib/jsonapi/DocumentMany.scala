@@ -9,4 +9,4 @@ object DocumentMany {
 }
 
 
-case class DocumentMany(data: Seq[JsObject], included: Seq[JsObject], meta: JsObject) extends Document
+case class DocumentMany(data: Seq[Resource], included: Seq[JsObject], meta: JsObject) extends Document

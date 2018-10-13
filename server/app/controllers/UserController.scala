@@ -4,9 +4,9 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.IdField
-import models.vertex.{GroupModel, UserModel}
 import play.api.libs.json.{JsArray, JsNull, JsObject, Json}
 import play.api.mvc._
+import resources.{GroupResource, UserResource}
 import services.UserService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -23,7 +23,7 @@ class UserController @Inject()(cc: ControllerComponents,
         if (models.isEmpty) {
           Ok(JsArray.empty)
         } else {
-          val resources = models.map(um => Json.toJsObject[UserModel](um))
+          val resources = models.map(um => UserResource(um))
           val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
           val json = Json.toJson(document)
           Ok(json)
@@ -45,7 +45,7 @@ class UserController @Inject()(cc: ControllerComponents,
       .map { userModelOpt =>
         userModelOpt
           .map { m =>
-            val json = Json.toJsObject[GroupModel](m)
+            val json = GroupResource(m)
             val document = DocumentSingle(json, Seq.empty[JsObject])
             Ok(Json.toJson(document))
           }

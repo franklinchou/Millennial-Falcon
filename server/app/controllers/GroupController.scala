@@ -4,9 +4,10 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
 import models.field.{GroupField, IdField, UserField}
-import models.vertex.{GroupModel, GroupType, UserModel, UserType}
+import models.vertex.{GroupModel, GroupType, UserType}
 import play.api.libs.json._
 import play.api.mvc._
+import resources.{GroupResource, UserResource}
 import services.GroupService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +29,7 @@ class GroupController @Inject()(cc: ControllerComponents,
         if (models.isEmpty) {
           Ok(JsArray.empty)  // TODO Get rid of this ugly logic by wrapping in a Monad?
         } else {
-          val resources = models.map(m => Json.toJsObject[GroupModel](m))
+          val resources = models.map(m => GroupResource(m))
           val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
           val json = Json.toJson(document)
           Ok(json)
@@ -42,9 +43,10 @@ class GroupController @Inject()(cc: ControllerComponents,
       .map { groupModelOpt =>
         groupModelOpt
           .map { m =>  // TODO Change to for-comprehension?
-            val json = Json.toJsObject[GroupModel](m)
-            val document = DocumentSingle(json, Seq.empty[JsObject])
-            Ok(Json.toJson(document))
+            val resource = GroupResource(m)
+            val document = DocumentSingle(resource, Seq.empty[JsObject])
+            val json = Json.toJson(document)
+            Ok(json)
           }
           .getOrElse(Ok(JsNull))
       }
@@ -67,7 +69,7 @@ class GroupController @Inject()(cc: ControllerComponents,
         if (models.isEmpty) {
           Ok(JsArray.empty)
         } else {
-          val resources = models.map(m => Json.toJsObject[UserModel](m))
+          val resources: Seq[UserResource] = models.map(m => UserResource(m))
           val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
           val json = Json.toJson(document)
           Ok(json)
@@ -96,9 +98,10 @@ class GroupController @Inject()(cc: ControllerComponents,
         val model = GroupModel.apply(group)
         Future {
           val _ = groupService.add(model)
-          val json = Json.toJsObject[GroupModel](model)
-          val document = DocumentSingle(json, Seq.empty[JsObject])
-          Created(Json.toJson(document))
+          val resource = GroupResource(model)
+          val document = DocumentSingle(resource, Seq.empty[JsObject])
+          val json = Json.toJson(document)
+          Created(json)
         }
       } else {
         Future { BadRequest }
@@ -119,6 +122,21 @@ class GroupController @Inject()(cc: ControllerComponents,
       val body = request.body
       val data = body \ "data"
 
+
+//      val q = data.validate[UserResource]
+//
+//      val groupContainer = StringContainer[IdField](groupId)  // wrapped group id
+//
+//      data.validate[UserResource].fold(
+//        _ => BadRequest,
+//        data => {
+//          val user = data
+//          groupService.find(groupCon)
+//        }
+//      )
+
+
+
       val typeOpt = (data \ "type").validate[String].asOpt.filter(_.equals(UserType))
       val userIdOpt = (data \ "attributes" \ "user").validate[String].asOpt
 
@@ -130,9 +148,10 @@ class GroupController @Inject()(cc: ControllerComponents,
         groupService.find(gid).map { g =>
           if (g.isDefined) {
             val _ = groupService.associateUser(gid, uid)  // Create new user
-            val json = Json.toJsObject[GroupModel](g.get)
-            val document = DocumentSingle(json, Seq.empty[JsObject])
-            Created(Json.toJson(document))
+            val resource = GroupResource(g.get)
+            val document = DocumentSingle(resource, Seq.empty[JsObject])
+            val json = Json.toJson(document)
+            Created(json)
           } else {
             NotFound
           }
