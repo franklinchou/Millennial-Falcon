@@ -71,6 +71,14 @@ class FeatureController @Inject()(cc: ControllerComponents,
   }
 
 
+  /**
+    * Delete the feature associated with a given id
+    *
+    * Once the feature is removed, all associated users/groups will be dis-associated
+    *
+    * @param id
+    * @return
+    */
   def delete(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     val featureId = StringContainer.apply[IdField](id)
     if (featureService.remove(featureId)) {
