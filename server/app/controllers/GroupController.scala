@@ -151,7 +151,7 @@ class GroupController @Inject()(cc: ControllerComponents,
     if (groupService.remove(groupId)) {
       Future { NoContent }
     } else {
-      Future { InternalServerError }
+      Future { NotFound }
     }
   }
 

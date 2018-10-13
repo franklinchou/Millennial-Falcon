@@ -9,7 +9,7 @@ import play.api.mvc._
 import resources.FeatureResource
 import services.FeatureService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class FeatureController @Inject()(cc: ControllerComponents,
@@ -68,6 +68,24 @@ class FeatureController @Inject()(cc: ControllerComponents,
           Created(json)
         }
       )
+  }
+
+
+  /**
+    * Delete the feature associated with a given id
+    *
+    * Once the feature is removed, all associated users/groups will be dis-associated
+    *
+    * @param id
+    * @return
+    */
+  def delete(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+    val featureId = StringContainer.apply[IdField](id)
+    if (featureService.remove(featureId)) {
+      Future { NoContent }
+    } else {
+      Future { NotFound }
+    }
   }
 
 }
