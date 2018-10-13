@@ -12,3 +12,4 @@
 2. Dropping a keyspace
 
 * `drop keyspace <keyspace>;`
+* Note: The project can be reverted by issuing: `drop keyspace janusgraph`.
