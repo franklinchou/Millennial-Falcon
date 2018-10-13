@@ -39,19 +39,39 @@ class UserController @Inject()(cc: ControllerComponents,
     * @return
     */
   def whichGroup(id: String) = Action.async { implicit rq: Request[AnyContent] =>
-    val groupId = StringContainer.apply[IdField](id)
+    val userId = StringContainer.apply[IdField](id)
     userService
-      .findGroup(groupId)
+      .findGroup(userId)
       .map { userModelOpt =>
         userModelOpt
           .map { m =>
-            val json = GroupResource(m)
-            val document = DocumentSingle(json, Seq.empty[Resource])
-            Ok(Json.toJson(document))
+            val resource = GroupResource(m)
+            val document = DocumentSingle(resource, Seq.empty[Resource])
+            val json = Json.toJson(document)
+            Ok(json)
           }
           .getOrElse(Ok(JsNull))
       }
 
+  }
+
+
+  /**
+    * Determine which features a given user has access to
+    *
+    * @param id
+    * @return
+    */
+  def whichFeatures(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+    val userId = StringContainer.apply[IdField](id)
+    userService
+      .findFeatures(userId)
+      .map { featureModels =>
+        val resource = featureModels.map(fm => FeatureIdResource(fm.id.value))
+        val document = DocumentMany(resource, Seq.empty[JsObject], JsObject.empty)
+        val json: JsValue = Json.toJson(document)
+        Ok(json)
+      }
   }
 
 

@@ -3,7 +3,7 @@ package services
 import com.google.inject.ImplementedBy
 import lib.StringContainer
 import models.field.{FeatureField, IdField}
-import models.vertex.{GroupModel, UserModel}
+import models.vertex.{FeatureModel, GroupModel, UserModel}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,6 +19,14 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     * @return
     */
   def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]]
+
+  /**
+    * Find which features this user has access to
+    *
+    * @param id user id
+    * @return
+    */
+  def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]]
 
   def find(id: StringContainer[IdField]): Future[Option[UserModel]]
 

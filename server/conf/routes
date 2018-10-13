@@ -6,6 +6,7 @@
 GET           /                           controllers.HomeController.health
 GET           /users                      controllers.UserController.index
 GET           /users/:id/group            controllers.UserController.whichGroup(id: String)
+GET           /users/:id/features         controllers.UserController.whichFeatures(id: String)
 GET           /features                   controllers.FeatureController.index
 GET           /features/:id               controllers.FeatureController.find(id: String)
 GET           /groups                     controllers.GroupController.index
