@@ -36,7 +36,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
     *
     * @return
     */
-  def findAllGroups: Future[List[GroupModel]] = {
+  def findAllGroups: Future[Seq[GroupModel]] = {
     Try {
       jg
         .V()
@@ -48,7 +48,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
       case Success(groups) => Future { groups }
       case Failure(e) =>
         Logger.error(s"`findAllGroups` failed with error $e")
-        Future { List.empty[GroupModel] }
+        Future { Seq.empty[GroupModel] }
     }
   }
 

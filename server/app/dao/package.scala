@@ -24,7 +24,7 @@ package object dao {
 
   val byUserNameComposite = "user-name-index"
 
-  val byProductNameComposite = "product-name-index"
+  val byFeatureNameComposite = "feature-name-index"
 
 
   val indices: Set[String] = {
@@ -35,7 +35,7 @@ package object dao {
       byTypeNameComposite,
       byGroupNameComposite,
       byUserNameComposite,
-      byProductNameComposite
+      byFeatureNameComposite
     )
   }
 
