@@ -56,6 +56,19 @@ class UserController @Inject()(cc: ControllerComponents,
 
 
   /**
+    * Given a user id associate features to that user
+    *
+    * @param id
+    */
+  def associateFeatures(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+
+    Future { Ok }
+  }
+
+
+
+
+  /**
     * Delete a user based on its id
     *
     * @param id

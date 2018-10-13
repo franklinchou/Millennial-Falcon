@@ -11,9 +11,9 @@ import play.api.Logger
 import utils.ListConversions._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
-class UserServiceJanus @Inject()()
+class UserServiceJanus @Inject()(featureService: FeatureService)
                                 (implicit ec: ExecutionContext) extends UserService {
 
   /**
@@ -22,13 +22,15 @@ class UserServiceJanus @Inject()()
     * @param id
     * @return
     */
-  private def find(id: StringContainer[IdField]): Vertex = {
-    jg
-      .V()
-      .hasLabel(vertex.UserType)
-      .has(vertex.Type, vertex.UserType)
-      .has(vertex.Id, id.value)
-      .next()
+  private def findVertex(id: StringContainer[IdField]): Option[Vertex] = {
+    Try {
+      jg
+        .V()
+        .hasLabel(vertex.UserType)
+        .has(vertex.Type, vertex.UserType)
+        .has(vertex.Id, id.value)
+        .next()
+    }.toOption
   }
 
   def findAllUsers: Future[List[UserModel]] =
@@ -42,12 +44,14 @@ class UserServiceJanus @Inject()()
     }
 
 
-  def findById(id: StringContainer[IdField]): Future[Option[UserModel]] = {
-    Future {
-      Try {
-        find(id)
-      }.toOption.map(v => v: UserModel)
-    }
+  /**
+    * Safe find for external use
+    *
+    * @param id
+    * @return
+    */
+  def find(id: StringContainer[IdField]): Future[Option[UserModel]] = {
+    Future { findVertex(id).map(v => v: UserModel) }
   }
 
 
@@ -77,6 +81,12 @@ class UserServiceJanus @Inject()()
     }
 
 
+  /**
+    * Given a user model add the user to the graph
+    *
+    * @param m
+    * @return
+    */
   def add(m: UserModel): Vertex = {
 
     val createdAt = m.createdAt.toString
@@ -92,22 +102,47 @@ class UserServiceJanus @Inject()()
         .property(vertex.ModifiedAt, modifiedAt)
         .next()
 
-    val _ = jg.tx.commit()
+    jg.tx.commit()
     result
   }
 
-  def remove(id: StringContainer[IdField]): Boolean = {
-    Try {
-      find(id).remove()
-    } match {
-      case Success(_) =>
-        jg.tx.commit()
-        true
-      case Failure(e) =>
-        val _ = jg.tx().rollback()
-        Logger.error(s"Error when attempting to remove node: ${id.value}, $e")
-        false
+  /**
+    * Associate an EXISTING user with an EXISTING feature
+    *
+    * @param user
+    * @param feature
+    */
+  def associateFeature(user: StringContainer[IdField],
+                       feature: StringContainer[IdField]): Option[Vertex] = {
+
+    for {
+      featureVertex <- featureService.findVertex(feature)
+      userVertex <- findVertex(user)
+    } yield {
+      userVertex.addEdge(edge.User2FeatureEdge.label, featureVertex)
+      jg.tx.commit()
+      featureVertex
     }
+  }
+
+
+  /**
+    * Remove a given user from the graph
+    *
+    * @param id
+    * @return
+    */
+  def remove(id: StringContainer[IdField]): Boolean = {
+    findVertex(id)
+      .map { v =>
+        v.remove()
+        true
+      }
+      .getOrElse {
+        jg.tx().rollback()
+        Logger.error(s"Error when attempting to remove node: ${id.value}")
+        false
+      }
   }
 
 }

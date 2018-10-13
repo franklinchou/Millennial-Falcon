@@ -2,6 +2,8 @@ package services
 
 import dao.JanusClient.jg
 import javax.inject.Inject
+import lib.StringContainer
+import models.field.IdField
 import models.vertex
 import models.vertex.FeatureModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
@@ -16,6 +18,45 @@ import scala.util.{Failure, Success, Try}
 
 class FeatureServiceJanus @Inject()()
                                    (implicit ec: ExecutionContext) extends FeatureService {
+
+
+  /**
+    * Given the feature id, find the associated vertex
+    *
+    * @param id
+    * @return
+    */
+  def findVertex(id: StringContainer[IdField]): Option[Vertex] = {
+    Try {
+      jg
+        .V()
+        .hasLabel(vertex.FeatureType)
+        .has(vertex.Type, vertex.FeatureType)
+        .has(vertex.Id, id.value)
+        .next()
+    }.toOption
+  }
+
+
+  /**
+    * Safe find a feature by its id
+    *
+    * @param id
+    * @return
+    */
+  def find(id: StringContainer[IdField]): Future[Option[FeatureModel]] = {
+    Future {
+      Try {
+        jg
+          .V()
+          .hasLabel(vertex.FeatureType)
+          .has(vertex.Type, vertex.FeatureType)
+          .has(vertex.Id, id.value)
+          .next()
+      }.toOption.map(v => v: FeatureModel)
+    }
+  }
+
 
   def findAllFeatures: Future[List[FeatureModel]] = {
     Try {
