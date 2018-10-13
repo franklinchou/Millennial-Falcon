@@ -1,10 +1,12 @@
 package services
 
+import java.util
+
 import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
-import models.vertex.{GroupModel, UserModel}
+import models.vertex.{FeatureModel, GroupModel, UserModel}
 import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
@@ -79,6 +81,28 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
       val v: Option[Vertex] = vs.flatMap(v => v.headOption)
       v.map(vm => vm: GroupModel)
     }
+
+
+  /**
+    * Find which features this user has access to
+    *
+    * @param id user id
+    * @return
+    */
+  def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]] = {
+    Future {
+      findVertex(id)
+        .map { userVertex =>
+          jg
+            .V(userVertex.id)
+            .out(edge.User2FeatureEdge.label)
+            .dedup()
+            .toList
+            .map(li => li: FeatureModel)
+        }
+        .getOrElse(List.empty[FeatureModel])
+    }
+  }
 
 
   /**
