@@ -13,3 +13,5 @@ Just your basic ass, Starbucks drinking, social-media-consuming next-gen entitle
 2. Running Cassandra commands:
 
 * `docker exec -it cassandra-test bash`
+
+3. Start server locally by issuing `sbt run` in the `server/` directory.
