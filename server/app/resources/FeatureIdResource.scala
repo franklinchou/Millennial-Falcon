@@ -22,7 +22,6 @@ object FeatureIdResource {
     (js \ "data").validate[List[FeatureIdResource]](Reads.list(reads))
   }
 
-
 }
 
 

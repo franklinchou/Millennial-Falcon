@@ -94,4 +94,19 @@ class FeatureServiceJanus @Inject()()
     val _ = jg.tx.commit()
     result
   }
+
+  /**
+    * Given an id, remove the feature from the graph
+    *
+    * @param id
+    * @return
+    */
+  def remove(id: StringContainer[IdField]): Boolean = {
+    findVertex(id).exists { vertex =>
+      vertex.remove()
+      jg.tx().commit()
+      true
+    }
+  }
+
 }

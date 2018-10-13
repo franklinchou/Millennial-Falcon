@@ -12,7 +12,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[FeatureServiceJanus])
 abstract class FeatureService()(implicit ec: ExecutionContext) {
 
-
   /**
     * Given the feature id, find the associated vertex
     *
@@ -45,5 +44,13 @@ abstract class FeatureService()(implicit ec: ExecutionContext) {
     * @return
     */
   def add(fm: FeatureModel): Vertex
+
+  /**
+    * Given an id, remove the feature from the graph
+    *
+    * @param id
+    * @return
+    */
+  def remove(id: StringContainer[IdField]): Boolean
 
 }
