@@ -1,14 +1,29 @@
 package resources
 
-import ai.x.play.json.Jsonx
+import lib.StringContainer
 import lib.jsonapi.Resource
+import models.field.UserField
 import models.vertex
 import models.vertex.UserModel
-import play.api.libs.json.{JsObject, Json, OFormat}
+import play.api.libs.json._
 
 object UserResource {
 
-  implicit lazy val jsonFormat: OFormat[UserResource] = Jsonx.formatCaseClass[UserResource]
+  implicit lazy val reads: Reads[UserResource] = (js: JsValue) => {
+    val body = js \ "data"
+
+    // TODO Abstract this to an outside JsonApi validation wrapper
+    val attributes = (body \ "attributes").validate[JsObject].get
+
+    (attributes \ "user").validate[String].fold(
+      _ => JsError(),
+      name => {
+        val model = UserModel.apply(StringContainer.apply[UserField](name))
+        val resource = UserResource.apply(model)
+        JsSuccess(resource)
+      }
+    )
+  }
 
 }
 

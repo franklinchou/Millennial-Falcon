@@ -3,8 +3,8 @@ package controllers
 import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle}
-import models.field.{GroupField, IdField, UserField}
-import models.vertex.{GroupModel, GroupType, UserType}
+import models.field.{GroupField, IdField}
+import models.vertex.{GroupModel, GroupType}
 import play.api.libs.json._
 import play.api.mvc._
 import resources.{GroupResource, UserResource}
@@ -27,7 +27,7 @@ class GroupController @Inject()(cc: ControllerComponents,
       .findAllGroups
       .map { models =>
         if (models.isEmpty) {
-          Ok(JsArray.empty)  // TODO Get rid of this ugly logic by wrapping in a Monad?
+          Ok(JsArray.empty) // TODO Get rid of this ugly logic by wrapping in a Monad?
         } else {
           val resources = models.map(m => GroupResource(m))
           val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
@@ -42,7 +42,7 @@ class GroupController @Inject()(cc: ControllerComponents,
       .find(StringContainer.apply[IdField](id))
       .map { groupModelOpt =>
         groupModelOpt
-          .map { m =>  // TODO Change to for-comprehension?
+          .map { m => // TODO Change to for-comprehension?
             val resource = GroupResource(m)
             val document = DocumentSingle(resource, Seq.empty[JsObject])
             val json = Json.toJson(document)
@@ -120,45 +120,23 @@ class GroupController @Inject()(cc: ControllerComponents,
   def associateUser(groupId: String) = Action(parse.tolerantJson).async {
     implicit request: Request[JsValue] => {
       val body = request.body
-      val data = body \ "data"
-
-
-//      val q = data.validate[UserResource]
-//
-//      val groupContainer = StringContainer[IdField](groupId)  // wrapped group id
-//
-//      data.validate[UserResource].fold(
-//        _ => BadRequest,
-//        data => {
-//          val user = data
-//          groupService.find(groupCon)
-//        }
-//      )
-
-
-
-      val typeOpt = (data \ "type").validate[String].asOpt.filter(_.equals(UserType))
-      val userIdOpt = (data \ "attributes" \ "user").validate[String].asOpt
-
-      val validate = Seq(userIdOpt, typeOpt).forall(_.isDefined)
-
-      if (validate) {
-        val gid = StringContainer[IdField](groupId)  // wrapped group id
-        val uid = StringContainer[UserField](userIdOpt.get)
-        groupService.find(gid).map { g =>
-          if (g.isDefined) {
-            val _ = groupService.associateUser(gid, uid)  // Create new user
-            val resource = GroupResource(g.get)
-            val document = DocumentSingle(resource, Seq.empty[JsObject])
-            val json = Json.toJson(document)
-            Created(json)
-          } else {
-            NotFound
+      val groupContainer = StringContainer[IdField](groupId) // wrapped group id
+      body.validate[UserResource].fold[Future[Result]](
+        _ => Future { BadRequest },
+        data => {
+          val user = data.userModel
+          groupService.find(groupContainer).map { groupOpt =>
+            groupOpt.fold[Result](NotFound)(_ => {
+              val _ = groupService.associateUser(groupContainer, user.name)
+              val resource = UserResource(user)
+              val document = DocumentSingle(resource, Seq.empty[JsObject])
+              val json = Json.toJson(document)
+              Created(json)
+            }
+            )
           }
         }
-      } else {
-        Future { BadRequest }
-      }
+      )
     }
   }
 
