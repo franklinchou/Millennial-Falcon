@@ -109,6 +109,9 @@ class UserController @Inject()(cc: ControllerComponents,
   /**
     * Update the given user to a new group
     *
+    * If the group does not exist, create a group and return 201
+    * The user MUST exist (or return 404)
+    *
     * @param id
     */
   def updateGroup(id: String) = Action(parse.tolerantJson).async {
