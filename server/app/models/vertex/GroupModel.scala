@@ -2,25 +2,17 @@ package models.vertex
 
 import java.time.ZonedDateTime
 
+import ai.x.play.json.Jsonx
 import lib.StringContainer
 import models.field.{GroupField, IdField}
 import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.OFormat
 
 object GroupModel {
 
-  implicit lazy val jsWriter: OWrites[GroupModel] = (gm: GroupModel) => {
-    Json.obj(
-      "type" -> gm.`type`,
-      "id" -> gm.id.value,
-      "attributes" -> Json.obj(
-        "group" -> gm.name,
-        "created-at" -> gm.createdAt.toString,
-        "modified-at" -> gm.modifiedAt.toString
-      )
-    )
-  }
+
+  implicit lazy val jsonFormat: OFormat[GroupModel] = Jsonx.formatCaseClass[GroupModel]
 
 
   /**

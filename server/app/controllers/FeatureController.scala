@@ -2,8 +2,6 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 import lib.jsonapi.{DocumentMany, DocumentSingle}
-import models.vertex.FeatureModel
-import models.vertex.FeatureModel._
 import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
 import play.api.mvc._
 import resources.FeatureResource
@@ -24,9 +22,7 @@ class FeatureController @Inject()(cc: ControllerComponents,
           if (models.isEmpty) {
             Ok(JsArray.empty)
           } else {
-            // val resources = models.map(m => FeatureResource.apply(m))
-            // TODO Cut over to use Resource
-            val resources = models.map(m => Json.toJsObject[FeatureModel](m))
+            val resources = models.map(m => FeatureResource(m))
             val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
             val json = Json.toJson(document)
             Ok(json)
@@ -42,18 +38,17 @@ class FeatureController @Inject()(cc: ControllerComponents,
 
       result.fold(
         _ => {
-          BadRequest  // TODO Fill with error
+          BadRequest // TODO Fill with error
         },
         data => {
-          val model = data.model
-          featureService.add(model)
-          val json = Json.toJsObject(model)
-          val document = DocumentSingle(json, Seq.empty[JsObject])
-          Created(Json.toJson(document))  // TODO Use Resource here
+          val model = data.featureModel
+          val _ = featureService.add(model)
+          val resource = FeatureResource(model)
+          val document = DocumentSingle(resource, Seq.empty[JsObject])
+          val json = Json.toJson(document)
+          Created(json)
         }
       )
-
   }
-
 
 }
