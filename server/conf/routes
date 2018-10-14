@@ -21,7 +21,8 @@ POST          /users/:id/features                   controllers.UserController.a
 POST          /groups/:id/features                  controllers.GroupController.associateFeatures(id: String)
 DELETE        /features/:id                         controllers.FeatureController.delete(id: String)
 DELETE        /users/:id                            controllers.UserController.delete(id: String)
-DELETE        /users/:user/features/:feature        controllers.UserController.removeFeature(user: String, feature: String)
+DELETE        /users/:user/features/:feature         controllers.UserController.removeFeature(user: String, feature:String)
+DELETE        /groups/:group/features/:feature       controllers.GroupController.removeFeature(group: String, feature: String)
 DELETE        /groups/:id                           controllers.GroupController.delete(id: String)
 
 

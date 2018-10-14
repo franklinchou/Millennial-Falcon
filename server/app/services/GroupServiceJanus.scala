@@ -6,7 +6,9 @@ import lib.StringContainer
 import models.field.{IdField, UserField}
 import models.vertex.{GroupModel, UserModel}
 import models.{edge, vertex}
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__
 import org.apache.tinkerpop.gremlin.structure.Vertex
+import play.api.Logger
 import utils.ListConversions._
 
 import scala.concurrent.ExecutionContext
@@ -152,6 +154,45 @@ class GroupServiceJanus @Inject()(userService: UserService,
       jg.tx.commit()
       featureVertex
     }
+
+
+  /**
+    * Dissociate a given feature from a group
+    *
+    * @param group
+    * @param feature
+    * @return
+    */
+  def removeFeature(group: StringContainer[IdField],
+                    feature: StringContainer[IdField]): Boolean = {
+
+    val vertices: Option[(Vertex, Vertex)] = {
+      for {
+        featureVertex <- featureService.findVertex(feature)
+        userVertex <- findVertex(group)
+        if jg.V(userVertex).out(edge.Group2FeatureEdge.label).hasId(featureVertex.id()).hasNext
+      } yield (featureVertex, userVertex)
+    }
+
+    vertices
+      .map { case (groupV, featureV) =>
+        jg
+          .V(groupV)
+          .bothE()
+          .where(__.otherV().is(featureV))
+          .drop()
+          .iterate()
+
+        jg.tx().commit()
+        true
+      }
+      .getOrElse {
+        jg.tx().rollback()
+        val message = s"Error when attempting to remove group->feature edge: ${group.value}->${feature.value}"
+        Logger.error(message)
+        false
+      }
+  }
 
 
   /**

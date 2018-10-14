@@ -190,6 +190,25 @@ class GroupController @Inject()(cc: ControllerComponents,
     }
   }
 
+  /**
+   * Dissociate an EXISTING group from an EXISTING feature
+   *
+   * @param group
+   * @param feature
+   * @return
+   */
+  def removeFeature(group: String, feature: String) = Action.async {
+    implicit request: Request[AnyContent] => {
+      val groupContainer = StringContainer.apply[IdField](group)
+      val featureContainer = StringContainer.apply[IdField](feature)
+      if (groupService.removeFeature(groupContainer, featureContainer)) {
+        Future { NoContent }
+      } else {
+        Future { NotFound }
+      }
+    }
+  }
+
 
   /**
     * Delete a group based on its id
