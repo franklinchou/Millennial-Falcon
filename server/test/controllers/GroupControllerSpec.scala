@@ -44,11 +44,11 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
     val method = controller.create()(request)
     val content = contentAsJson(method)(Timeout(20.seconds))
 
-    s"should return $CREATED" in {
+    s"return $CREATED" in {
       status(method)(Timeout(20.seconds)) mustBe CREATED
     }
 
-    "should return expected content" in {
+    "return expected content" in {
       (content \ "data" \ "attributes" \ "group")
         .validate[String]
         .fold(
@@ -57,7 +57,7 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
         )
     }
 
-    "should return the created group's id" in {
+    "return the created group's id" in {
       (content \ "data" \ "id")
         .validate[String]
         .fold(
@@ -103,11 +103,11 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
     val method = controller.associateNewUser(testGroup2Id)(request)
     val content = contentAsJson(method)(Timeout(20.seconds))
 
-    s"should return $CREATED" in {
+    s"return $CREATED" in {
       status(method)(Timeout(20.seconds)) mustBe CREATED
     }
 
-    "should return jsonapi content" in {
+    "return jsonapi content" in {
       // TODO Test jsonapi content
       (content \ "data" \ "attributes" \ "user")
         .validate[String]
@@ -169,8 +169,8 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
     val request = FakeRequest(POST, s"/group", FakeHeaders(), invalidTestGroup1AsJson)
     val method = controller.create()(request)
 
-    s"should return $BAD_REQUEST" in {
-      status(method)(Timeout(20.seconds)) mustBe BAD_REQUEST
+    s"return $BAD_REQUEST" in {
+      status(method)(Timeout(30.seconds)) mustBe BAD_REQUEST
     }
 
   }
