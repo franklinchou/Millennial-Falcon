@@ -8,6 +8,7 @@ import lib.StringContainer
 import models.field.IdField
 import models.vertex.{FeatureModel, GroupModel, UserModel}
 import models.{edge, vertex}
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
@@ -149,6 +150,44 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     }
   }
 
+  /**
+    * Dissociate an EXISTING user from an EXISTING feature
+    *
+    * @param user
+    * @param feature
+    * @return
+    */
+  def removeFeature(user: StringContainer[IdField],
+                    feature: StringContainer[IdField]): Boolean = {
+
+    val vertices: Option[(Vertex, Vertex)] = {
+      for {
+        featureVertex <- featureService.findVertex(feature)
+        userVertex <- findVertex(user)
+        if jg.V(userVertex).out(edge.User2FeatureEdge.label).hasId(featureVertex.id()).hasNext
+      } yield (featureVertex, userVertex)
+    }
+
+    vertices
+      .map { case (uVertex, fVertex) =>
+          jg
+            .V(uVertex)
+            .bothE()
+            .where(__.otherV().is(fVertex))
+            .drop()
+            .iterate()
+
+          jg.tx().commit()
+          true
+      }
+      .getOrElse {
+        jg.tx().rollback()
+        val message = s"Error when attempting to remove user->feature edge: ${user.value}->${feature.value}"
+        Logger.error(message)
+        false
+      }
+  }
+
 
   /**
     * Remove a given user from the graph
@@ -160,6 +199,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     findVertex(id)
       .map { v =>
         v.remove()
+        jg.tx().commit()
         true
       }
       .getOrElse {

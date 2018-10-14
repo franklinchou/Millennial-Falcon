@@ -108,6 +108,26 @@ class UserController @Inject()(cc: ControllerComponents,
 
 
   /**
+    * Remove the relationship between user <> feature
+    *
+    * @param user
+    * @param feature
+    * @return
+    */
+  def removeFeature(user: String, feature: String) = Action.async {
+    implicit request: Request[AnyContent] => {
+      val userContainer = StringContainer.apply[IdField](user)
+      val featureContainer = StringContainer.apply[IdField](feature)
+      if (userService.removeFeature(userContainer, featureContainer)) {
+        Future { NoContent }
+      } else {
+        Future { NotFound }
+      }
+    }
+  }
+
+
+  /**
     * Delete a user based on its id
     *
     * @param id
