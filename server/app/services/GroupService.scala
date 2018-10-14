@@ -20,6 +20,14 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
   def find(id: StringContainer[IdField]): Future[Option[GroupModel]]
 
   /**
+    * Given the group id, find the associated vertex
+    *
+    * @param id Group id
+    * @return
+    */
+  def findVertex(id: StringContainer[IdField]): Option[Vertex]
+
+  /**
     * Find all groups/clients
     *
     * @return
@@ -40,13 +48,21 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
 
   /**
     * Create a new user and associate it with a given group
-    *
     * The group must already exist. If the group does not already exist, return None.
     *
     * @param group Group id
     * @param user  Name of new user to create
     * @return
     */
-  def associateUser(group: StringContainer[IdField], user: StringContainer[UserField]): Option[Vertex]
+  def associateNewUser(group: StringContainer[IdField], user: StringContainer[UserField]): Option[Vertex]
+
+  /**
+    * Associate an EXISTING user with an EXISTING group
+    *
+    * @param group Group id
+    * @param user  User vertex
+    * @return
+    */
+  def associateExistingUser(group: Vertex, user: Vertex): Unit
 
 }

@@ -12,8 +12,9 @@ GET           /features/:id                         controllers.FeatureControlle
 GET           /groups                               controllers.GroupController.index
 GET           /groups/:id                           controllers.GroupController.find(id: String)
 GET           /groups/:id/users                     controllers.GroupController.showUsers(id: String)
+PUT           /users/:id/group                      controllers.UserController.updateGroup(id: String)
 POST          /groups                               controllers.GroupController.create
-POST          /groups/:id/users                     controllers.GroupController.associateUser(id: String)
+POST          /groups/:id/users                     controllers.GroupController.associateNewUser(id: String)
 POST          /features                             controllers.FeatureController.create
 POST          /users/:id/features                   controllers.UserController.associateFeatures(id: String)
 DELETE        /features/:id                         controllers.FeatureController.delete(id: String)
