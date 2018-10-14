@@ -12,14 +12,6 @@ import scala.concurrent.ExecutionContext
 abstract class GroupService()(implicit ec: ExecutionContext) {
 
   /**
-    * Find a single group by its id
-    *
-    * @param id
-    * @return
-    */
-  def find(id: StringContainer[IdField]): Option[Vertex]
-
-  /**
     * Given the group id, find the associated vertex
     *
     * @param id Group id
@@ -42,10 +34,14 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     */
   def findAllUsers(groupId: StringContainer[IdField]): Seq[Vertex]
 
+  /**
+    * Add a group to the graph
+    *
+    * @param m
+    * @return
+    */
   def add(m: GroupModel): Vertex
-
-  def remove(id: StringContainer[IdField]): Boolean
-
+  
   /**
     * Create a new user and associate it with a given group
     * The group must already exist. If the group does not already exist, return None.
@@ -64,5 +60,13 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     * @return
     */
   def associateExistingUser(group: Vertex, user: Vertex): Unit
+
+  /**
+    * Remove a group from the graph
+    *
+    * @param id
+    * @return
+    */
+  def remove(id: StringContainer[IdField]): Boolean
 
 }

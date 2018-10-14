@@ -38,7 +38,7 @@ class GroupController @Inject()(cc: ControllerComponents,
 
   def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
-      .find(StringContainer.apply[IdField](id))
+      .findVertex(StringContainer.apply[IdField](id))
       .map { m =>
         Future {
           val resource = GroupResource(m)
@@ -121,7 +121,7 @@ class GroupController @Inject()(cc: ControllerComponents,
         _ => Future { BadRequest },
         data => {
           val user = data.userModel
-          groupService.find(groupContainer).fold[Future[Result]](Future(NotFound))(_ => {
+          groupService.findVertex(groupContainer).fold[Future[Result]](Future(NotFound))(_ => {
             groupService.associateNewUser(groupContainer, user.name)
             val resource = UserResource(user)
             val document = DocumentSingle(resource, Seq.empty[Resource])
