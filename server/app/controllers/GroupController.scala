@@ -38,7 +38,7 @@ class GroupController @Inject()(cc: ControllerComponents,
 
   /**
     * Find a group by id
-    * 
+    *
     * @param id
     * @return
     */

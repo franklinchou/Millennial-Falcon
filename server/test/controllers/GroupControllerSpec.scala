@@ -8,7 +8,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Logger
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 import play.api.test.Helpers.{stubControllerComponents, _}
 import play.api.test.{FakeHeaders, FakeRequest, Injecting}
 import services.GroupServiceJanus
@@ -71,6 +71,7 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
     }
   }
 
+
   "Group Controller, associate a new user" should {
 
     val testGroup2Id = "123e4567-e89b-12d3-a456-426655440000"
@@ -107,38 +108,45 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
     }
 
     "should return jsonapi content" in {
+      // TODO Test jsonapi content
       (content \ "data" \ "attributes" \ "user")
         .validate[String]
         .fold(
           _ => assert(false),
           g => assert(g == "test-user-1")
         )
-
-      // TODO Test jsonapi content
     }
   }
 
 
-  "Group Controller, associate a new user" should {
+  "Group Controller, finding groups" should {
 
-    "show all groups" in {
+    val request = FakeRequest(GET, s"/groups")
+    val method = controller.index()(request)
 
+    s"return $OK" in {
+      status(method)(Timeout(20.seconds)) mustBe OK
+    }
+
+    s"return content" in {
+      val content = contentAsJson(method)(Timeout(20.seconds))
+      (content \ "data")
+        .validate[JsArray]
+        .fold(
+          _ => assert(false),
+          g => assert(g.value.nonEmpty)
+        )
     }
 
     "find a group by its id" in {
-
+      // TODO
     }
 
     "show all the users associated with a group" in {
-
-    }
-
-    "remove the group" in {
-
+      // TODO
     }
 
   }
-
 
 
   "Group Controller, garbage in, garbage out" should {
