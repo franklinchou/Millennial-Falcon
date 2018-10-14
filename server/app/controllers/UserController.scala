@@ -128,6 +128,7 @@ class UserController @Inject()(cc: ControllerComponents,
       val userOpt = userService.findUserVertex(userContainer)
       val groupOpt = groupService.findVertex(groupContainer)
 
+      // TODO Clean this up after #35
       (userOpt, groupOpt) match {
         case (Some(user), Some(group)) =>
           userService.removeGroup(userContainer)
