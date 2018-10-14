@@ -14,7 +14,6 @@ import play.api.test.{FakeRequest, Injecting}
 import resources.UserResource
 import services.{GroupService, UserService}
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTest with Injecting {
