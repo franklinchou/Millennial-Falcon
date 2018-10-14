@@ -4,10 +4,10 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.{GroupField, IdField}
-import models.vertex.{GroupModel, GroupType, UserModel}
+import models.vertex.{FeatureModel, GroupModel, GroupType, UserModel}
 import play.api.libs.json._
 import play.api.mvc._
-import resources.{GroupResource, UserResource}
+import resources.{FeatureIdResource, FeatureResource, GroupResource, UserResource}
 import services.GroupService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -75,6 +75,28 @@ class GroupController @Inject()(cc: ControllerComponents,
 
 
   /**
+    * Show all the features associated with a given group
+    *
+    * @param id
+    * @return
+    */
+  def showFeatures(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+    Future {
+      val groupIdContainer = StringContainer.apply[IdField](id)
+      val features =
+        groupService
+          .findAllFeatures(groupIdContainer)
+          .map(v => v: FeatureModel)
+          .map(um => FeatureResource(um))
+
+      val document = DocumentMany(features, Seq.empty[JsObject], Json.obj())
+      val json = Json.toJson(document)
+      Ok(json)
+    }
+  }
+
+
+  /**
     * Create a new group
     *
     * @return
@@ -129,6 +151,61 @@ class GroupController @Inject()(cc: ControllerComponents,
             Future(Created(json))
           })
         })
+    }
+  }
+
+
+  /**
+    * Associate existing features to a given group
+    *
+    * @param id
+    * @return
+    */
+  def associateFeatures(id: String) = Action(parse.tolerantJson).async {
+    implicit request: Request[JsValue] => {
+      val body = request.body
+      val groupContainer = StringContainer[IdField](id) // wrapped group id
+      body.validate[List[FeatureIdResource]].fold[Future[Result]](
+        _ => Future { BadRequest },
+        valid => {
+          // Insert feature relationship
+          valid.foreach { feature =>
+            val id = StringContainer.apply[IdField](feature.id)
+            groupService.associateFeature(groupContainer, id)
+          }
+          groupService
+            .findVertex(groupContainer)
+            .map(v => v: GroupModel)
+            .map { group =>
+              Future {
+                val resource = GroupResource(group)
+                val associated = valid
+                val document = DocumentSingle(resource, associated)
+                val json = Json.toJson(document)
+                Created(json)
+              }
+            }
+            .getOrElse(Future { NotFound })
+        })
+    }
+  }
+
+  /**
+   * Dissociate an EXISTING group from an EXISTING feature
+   *
+   * @param group
+   * @param feature
+   * @return
+   */
+  def removeFeature(group: String, feature: String) = Action.async {
+    implicit request: Request[AnyContent] => {
+      val groupContainer = StringContainer.apply[IdField](group)
+      val featureContainer = StringContainer.apply[IdField](feature)
+      if (groupService.removeFeature(groupContainer, featureContainer)) {
+        Future { NoContent }
+      } else {
+        Future { NotFound }
+      }
     }
   }
 

@@ -6,13 +6,16 @@ import lib.StringContainer
 import models.field.{IdField, UserField}
 import models.vertex.{GroupModel, UserModel}
 import models.{edge, vertex}
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__
 import org.apache.tinkerpop.gremlin.structure.Vertex
+import play.api.Logger
 import utils.ListConversions._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-class GroupServiceJanus @Inject()(userService: UserService)
+class GroupServiceJanus @Inject()(userService: UserService,
+                                  featureService: FeatureService)
                                  (implicit ec: ExecutionContext) extends GroupService {
 
   /**
@@ -44,7 +47,29 @@ class GroupServiceJanus @Inject()(userService: UserService)
       .hasLabel(vertex.GroupType)
       .has(vertex.Type, vertex.GroupType)
       .toList
+      .toSeq
   }
+
+
+  /**
+    * Find all features/products associated with a given group
+    *
+    * @return
+    */
+  def findAllFeatures(groupId: StringContainer[IdField]): Seq[Vertex] = {
+    findVertex(groupId)
+      .map { groupVertex =>
+        jg
+          .V(groupVertex.id())
+          .out(edge.Group2FeatureEdge.label)
+          .dedup()
+          .toList
+          .toSeq
+      }
+      .getOrElse(Seq.empty[Vertex])
+  }
+
+
 
   /**
     * Find all users associated with a group
@@ -110,6 +135,63 @@ class GroupServiceJanus @Inject()(userService: UserService)
   def associateExistingUser(group: Vertex, user: Vertex): Unit = {
     group.addEdge(edge.Group2UserEdge.label, user)
     jg.tx.commit()
+  }
+
+
+  /**
+    * Associate an EXISTING group with an EXISTING feature
+    *
+    * @param group
+    * @param feature
+    */
+  def associateFeature(group: StringContainer[IdField],
+                       feature: StringContainer[IdField]): Option[Vertex] =
+    for {
+      featureVertex <- featureService.findVertex(feature)
+      groupVertex <- findVertex(group)
+    } yield {
+      groupVertex.addEdge(edge.Group2FeatureEdge.label, featureVertex)
+      jg.tx.commit()
+      featureVertex
+    }
+
+
+  /**
+    * Dissociate a given feature from a group
+    *
+    * @param group
+    * @param feature
+    * @return
+    */
+  def removeFeature(group: StringContainer[IdField],
+                    feature: StringContainer[IdField]): Boolean = {
+
+    val vertices: Option[(Vertex, Vertex)] = {
+      for {
+        featureVertex <- featureService.findVertex(feature)
+        userVertex <- findVertex(group)
+        if jg.V(userVertex).out(edge.Group2FeatureEdge.label).hasId(featureVertex.id()).hasNext
+      } yield (featureVertex, userVertex)
+    }
+
+    vertices
+      .map { case (groupV, featureV) =>
+        jg
+          .V(groupV)
+          .bothE()
+          .where(__.otherV().is(featureV))
+          .drop()
+          .iterate()
+
+        jg.tx().commit()
+        true
+      }
+      .getOrElse {
+        jg.tx().rollback()
+        val message = s"Error when attempting to remove group->feature edge: ${group.value}->${feature.value}"
+        Logger.error(message)
+        false
+      }
   }
 
 
