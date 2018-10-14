@@ -90,19 +90,25 @@ class GroupServiceJanus @Inject()(userService: UserService,
   }
 
 
-  // TODO Make Option[Vertex], see #45
-  def add(m: GroupModel): Vertex = {
+  /**
+    * Safe add a group to the graph
+    *
+    * @param m
+    * @return
+    */
+  def add(m: GroupModel): Option[Vertex] = {
     val result =
-      jg
-        .addV(m.`type`)
-        .property(vertex.Type, m.`type`)
-        .property(vertex.Name, m.name.value)
-        .property(vertex.Id, m.id.value)
-        .property(vertex.CreatedAt, m.createdAt.toString)
-        .property(vertex.ModifiedAt, m.modifiedAt.toString)
-        .next()
-
-    val _ = jg.tx.commit()
+      Try {
+        jg
+          .addV(m.`type`)
+          .property(vertex.Type, m.`type`)
+          .property(vertex.Name, m.name.value)
+          .property(vertex.Id, m.id.value)
+          .property(vertex.CreatedAt, m.createdAt.toString)
+          .property(vertex.ModifiedAt, m.modifiedAt.toString)
+          .next()
+      }.toOption
+    jg.tx.commit()
     result
   }
 
