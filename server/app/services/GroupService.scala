@@ -3,10 +3,10 @@ package services
 import com.google.inject.ImplementedBy
 import lib.StringContainer
 import models.field.{IdField, UserField}
-import models.vertex.{GroupModel, UserModel}
+import models.vertex.GroupModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[GroupServiceJanus])
 abstract class GroupService()(implicit ec: ExecutionContext) {
@@ -17,7 +17,7 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     * @param id
     * @return
     */
-  def find(id: StringContainer[IdField]): Future[Option[GroupModel]]
+  def find(id: StringContainer[IdField]): Option[Vertex]
 
   /**
     * Given the group id, find the associated vertex
@@ -32,7 +32,7 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     *
     * @return
     */
-  def findAllGroups: Future[Seq[GroupModel]]
+  def findAllGroups: Seq[Vertex]
 
   /**
     * Find all the users associated with a given group
@@ -40,7 +40,7 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     * @param groupId
     * @return
     */
-  def findAllUsers(groupId: StringContainer[IdField]): Future[List[UserModel]]
+  def findAllUsers(groupId: StringContainer[IdField]): Seq[Vertex]
 
   def add(m: GroupModel): Vertex
 
