@@ -1,5 +1,7 @@
 package services
 
+import java.util
+
 import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
@@ -23,7 +25,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     * @param id
     * @return
     */
-  private def findUserVertex(id: StringContainer[IdField]): Option[Vertex] = {
+  private def findVertex(id: StringContainer[IdField]): Option[Vertex] = {
     Try {
       jg
         .V()
@@ -33,30 +35,6 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
         .next()
     }.toOption
   }
-
-
-  /**
-    * Find the group associated with a user and return the group vertex
-    *
-    * @param id
-    * @return
-    */
-  private def findGroupVertexByUser(id: StringContainer[IdField]): Option[Vertex] = {
-    // If the query fails return None
-    val query =
-      Try {
-        // predicate query (should only ever be 0 or 1)
-        jg
-          .V()
-          .has(vertex.Id, id.value)
-          .inE(edge.Group2UserEdge.label)
-          .toList
-      }.toOption
-
-    val vs: Option[List[Vertex]] = query.map(q => q.map(v => v.outVertex()))
-    vs.flatMap(v => v.headOption)
-  }
-
 
   def findAllUsers: Future[List[UserModel]] =
     Future.successful {
@@ -75,8 +53,8 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     * @param id
     * @return
     */
-  def find(id: StringContainer[IdField]): Option[UserModel] = {
-    findUserVertex(id).map(v => v: UserModel)
+  def find(id: StringContainer[IdField]): Future[Option[UserModel]] = {
+    Future { findVertex(id).map(v => v: UserModel) }
   }
 
 
@@ -86,9 +64,24 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     * @param id
     * @return
     */
-  def findGroup(id: StringContainer[IdField]): Option[GroupModel] = {
-    findGroupVertexByUser(id).map(vm => vm: GroupModel)
-  }
+  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]] =
+    Future {
+
+      // If the query fails return None
+      val query =
+        Try {
+          // predicate query (should only ever be 0 or 1)
+          jg
+            .V()
+            .has(vertex.Id, id.value)
+            .inE(edge.Group2UserEdge.label)
+            .toList
+        }.toOption
+
+      val vs: Option[List[Vertex]] = query.map(q => q.map(v => v.outVertex()))
+      val v: Option[Vertex] = vs.flatMap(v => v.headOption)
+      v.map(vm => vm: GroupModel)
+    }
 
 
   /**
@@ -99,7 +92,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     */
   def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]] = {
     Future {
-      findUserVertex(id)
+      findVertex(id)
         .map { userVertex =>
           jg
             .V(userVertex.id)
@@ -149,7 +142,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
 
     for {
       featureVertex <- featureService.findVertex(feature)
-      userVertex <- findUserVertex(user)
+      userVertex <- findVertex(user)
     } yield {
       userVertex.addEdge(edge.User2FeatureEdge.label, featureVertex)
       jg.tx.commit()
@@ -170,7 +163,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     val vertices: Option[(Vertex, Vertex)] = {
       for {
         featureVertex <- featureService.findVertex(feature)
-        userVertex <- findUserVertex(user)
+        userVertex <- findVertex(user)
         if jg.V(userVertex).out(edge.User2FeatureEdge.label).hasId(featureVertex.id()).hasNext
       } yield (featureVertex, userVertex)
     }
@@ -197,50 +190,13 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
 
 
   /**
-    * Dissociate an EXISTING user from its group
-    * There should only ever be one group!
-    *
-    * @param user
-    * @return
-    */
-  def removeGroup(user: StringContainer[IdField]): Boolean = {
-
-    val vertices: Option[(Vertex, Vertex)] = {
-      for {
-        userVertex <- findUserVertex(user)
-        groupVertex <- findGroupVertexByUser(user)
-      } yield (userVertex, groupVertex)
-    }
-
-    vertices
-      .map { case (uVertex, gVertex) =>
-        jg
-          .V(uVertex)
-          .bothE()
-          .where(__.otherV().is(gVertex))
-          .drop()
-          .iterate()
-
-        jg.tx().commit()
-        true
-      }
-      .getOrElse {
-        jg.tx().rollback()
-        val message = s"Error when attempting to remove user->group edge"
-        Logger.error(message)
-        false
-      }
-  }
-
-
-  /**
     * Remove a given user from the graph
     *
     * @param id
     * @return
     */
   def remove(id: StringContainer[IdField]): Boolean = {
-    findUserVertex(id)
+    findVertex(id)
       .map { v =>
         v.remove()
         jg.tx().commit()

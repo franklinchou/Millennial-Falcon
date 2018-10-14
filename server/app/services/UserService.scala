@@ -18,7 +18,7 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     *
     * @return
     */
-  def findGroup(id: StringContainer[IdField]): Option[GroupModel]
+  def findGroup(id: StringContainer[IdField]): Future[Option[GroupModel]]
 
   /**
     * Find which features this user has access to
@@ -28,7 +28,7 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     */
   def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]]
 
-  def find(id: StringContainer[IdField]): Option[UserModel]
+  def find(id: StringContainer[IdField]): Future[Option[UserModel]]
 
   def add(m: UserModel): Vertex
 
@@ -48,15 +48,6 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     * @return
     */
   def removeFeature(user: StringContainer[IdField], feature: StringContainer[IdField]): Boolean
-
-  /**
-    * Dissociate an EXISTING user from its group
-    * There should only ever be one group!
-    *
-    * @param user
-    * @return
-    */
-  def removeGroup(user: StringContainer[IdField]): Boolean
 
   def remove(id: StringContainer[IdField]): Boolean
 

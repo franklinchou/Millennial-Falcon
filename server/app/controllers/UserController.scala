@@ -42,15 +42,17 @@ class UserController @Inject()(cc: ControllerComponents,
     val userId = StringContainer.apply[IdField](id)
     userService
       .findGroup(userId)
-      .map { group =>
-        Future {
-          val resource = GroupResource(group)
-          val document = DocumentSingle(resource, Seq.empty[Resource])
-          val json = Json.toJson(document)
-          Ok(json)
-        }
+      .map { userModelOpt =>
+        userModelOpt
+          .map { m =>
+            val resource = GroupResource(m)
+            val document = DocumentSingle(resource, Seq.empty[Resource])
+            val json = Json.toJson(document)
+            Ok(json)
+          }
+          .getOrElse(Ok(JsNull))
       }
-      .getOrElse(Future { Ok(JsNull) })
+
   }
 
 
@@ -80,46 +82,27 @@ class UserController @Inject()(cc: ControllerComponents,
     */
   def associateFeatures(id: String) = Action(parse.tolerantJson).async {
     implicit rq: Request[JsValue] => {
+
       val body = rq.body
       val userContainer = StringContainer[IdField](id)
+
       body.validate[List[FeatureIdResource]].fold[Future[Result]](
         _ => Future { BadRequest },
         valid => {
-          userService
-            .find(userContainer)
-            .map { user =>
-              Future {
-                val resource = UserResource(user)
-                val associated = valid
-                val document = DocumentSingle(resource, associated)
-                val json = Json.toJson(document)
-                Created(json)
-              }
-            }
-            .getOrElse(Future { NotFound })
+          userService.find(userContainer).map { userOpt =>
+            userOpt.fold[Result](NotFound)(user => {
+              valid
+                .map(featureId => StringContainer.apply[IdField](featureId.id))
+                .map(featureContainer => userService.associateFeature(userContainer, featureContainer))
+              val resource = UserResource(user)
+              val associated = valid
+              val document = DocumentSingle(resource, associated)
+              val json = Json.toJson(document)
+              Created(json)
+            })
+          }
         }
       )
-    }
-  }
-
-  /**
-    * Update the given user to a new group
-    *
-    * If the group does not exist, create a group and return 201
-    * If the update was successful return 200
-    * The user MUST exist (or return 404)
-    *
-    * @param id
-    */
-  def updateGroup(id: String) = Action(parse.tolerantJson).async {
-    implicit rq: Request[JsValue] => {
-
-//      for {
-//        user <- userService.find()
-//      }
-
-
-      Future { Ok }
     }
   }
 
@@ -155,7 +138,7 @@ class UserController @Inject()(cc: ControllerComponents,
     if (userService.remove(userId)) {
       Future { NoContent }
     } else {
-      Future { NotFound }
+      Future { InternalServerError }
     }
   }
 
