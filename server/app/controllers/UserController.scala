@@ -120,7 +120,7 @@ class UserController @Inject()(cc: ControllerComponents,
       val data = body \ "data"
 
       // val typeAsOpt = (data \ "type").validate[String].asOpt.filter(_.equals(GroupType))
-      val groupAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
+      val groupAsOpt = (data \ "id").validate[String].asOpt
 
       val userContainer = StringContainer.apply[IdField](id)
       val groupContainer = StringContainer.apply[IdField](groupAsOpt.get)
