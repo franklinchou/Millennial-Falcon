@@ -36,6 +36,12 @@ class GroupController @Inject()(cc: ControllerComponents,
     }
   }
 
+  /**
+    * Find a group by id
+    * 
+    * @param id
+    * @return
+    */
   def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
       .findVertex(StringContainer.apply[IdField](id))

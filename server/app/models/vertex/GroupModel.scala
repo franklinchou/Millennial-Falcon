@@ -52,6 +52,22 @@ object GroupModel {
     )
   }
 
+
+  /**
+    * Create a [[GroupModel]]
+    *
+    * @param group
+    * @return
+    */
+  def apply(id: String, group: String): GroupModel = {
+    GroupModel(
+      id = StringContainer.apply[IdField](id),
+      name = StringContainer.apply[GroupField](group),
+      createdAt = vertex.DefaultTime,
+      modifiedAt = vertex.DefaultTime
+    )
+  }
+
 }
 
 

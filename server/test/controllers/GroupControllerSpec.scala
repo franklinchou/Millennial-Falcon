@@ -1,13 +1,12 @@
 package controllers
 
 import akka.util.Timeout
-import lib.StringContainer
-import models.field.GroupField
 import models.vertex.GroupModel
-import org.mockito.Mockito.when
+import models.vertex.GroupModel._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import play.api.Logger
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers.{stubControllerComponents, _}
@@ -21,11 +20,11 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  "Group Controller" should {
+  val application = new GuiceApplicationBuilder()
+  val testGroupService = application.injector.instanceOf[GroupServiceJanus]
+  val controller = new GroupController(stubControllerComponents(), testGroupService)
 
-    val application = new GuiceApplicationBuilder()
-    val testGroupService = application.injector.instanceOf[GroupServiceJanus]
-    val controller = new GroupController(stubControllerComponents(), testGroupService)
+  "Group Controller, create a new group" should {
 
     val testGroup1 =
       """
@@ -40,34 +39,87 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
         |}
       """.stripMargin
 
-    s"create a new group, should return $CREATED" in {
-      val testGroup1AsJson = Json.parse(testGroup1) // Temp
+    val testGroup1AsJson = Json.parse(testGroup1)
+    val request = FakeRequest(POST, s"/group", FakeHeaders(), testGroup1AsJson)
+    val method = controller.create()(request)
+    val content = contentAsJson(method)(Timeout(20.seconds))
 
-
-      val testGroup1Model: GroupModel = {
-        val g = (testGroup1AsJson \ "data" \ "attributes" \ "group").validate[String].get
-        GroupModel(StringContainer.apply[GroupField](g))
-      }
-
-
-      // assert(testGroupService.add(testGroup1Model).isDefined)
-
-
-
-
-
-      val request = FakeRequest(POST, s"/group", FakeHeaders(), testGroup1AsJson)
-      val method = controller.create()(request)
+    s"should return $CREATED" in {
       status(method)(Timeout(20.seconds)) mustBe CREATED
     }
 
-    "create a new group, should return expected content" in {
-
+    "should return expected content" in {
+      (content \ "data" \ "attributes" \ "group")
+        .validate[String]
+        .fold(
+          _ => assert(false),
+          g => assert(g == "test-group-1")
+        )
     }
 
-    "associate a new user with a group" in {
-
+    "should return the created group's id" in {
+      (content \ "data" \ "id")
+        .validate[String]
+        .fold(
+          _ => assert(false),
+          id => {
+            // createdGroup = id
+            Logger.info(s"Successfully created group with id=$id")
+            assert(true)
+          }
+        )
     }
+  }
+
+  "Group Controller, associate a new user" should {
+
+    val testGroup2Id = "123e4567-e89b-12d3-a456-426655440000"
+    val testGroup2Model = GroupModel.apply(testGroup2Id, "test-group-2")
+
+    val testUser1 =
+      """
+        |{
+        |	"data": {
+        |		"type":"user",
+        |		"id":"",
+        |		"attributes":{
+        |			"user":"test-user-1"
+        |		}
+        |	}
+        |}
+      """.stripMargin
+
+    // Insert the new group
+    testGroupService
+      .add(testGroup2Model)
+      .map(gm => gm: GroupModel) match {
+          case Some(gm) => Logger.info(s"Inserted test group, id=${gm.id.value}")
+          case None => Logger.error("Failed to insert test model!")
+      }
+
+    val testUser1AsJson = Json.parse(testUser1)
+    val request = FakeRequest(POST, s"/groups/$testGroup2Id/users", FakeHeaders(), testUser1AsJson)
+    val method = controller.associateNewUser(testGroup2Id)(request)
+    val content = contentAsJson(method)(Timeout(20.seconds))
+
+    s"should return $CREATED" in {
+      status(method)(Timeout(20.seconds)) mustBe CREATED
+    }
+
+    "should return jsonapi content" in {
+      (content \ "data" \ "attributes" \ "user")
+        .validate[String]
+        .fold(
+          _ => assert(false),
+          g => assert(g == "test-user-1")
+        )
+
+      // TODO Test jsonapi content
+    }
+  }
+
+
+  "Group Controller, associate a new user" should {
 
     "show all groups" in {
 
@@ -83,6 +135,34 @@ class GroupControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPer
 
     "remove the group" in {
 
+    }
+
+  }
+
+
+
+  "Group Controller, garbage in, garbage out" should {
+
+    // invalid type: user
+    val invalidTestGroup1 =
+      """
+        |{
+        |	"data": {
+        |		"type":"user",
+        |		"id":"",
+        |		"attributes":{
+        |			"group":"test-group-1"
+        |		}
+        |	}
+        |}
+      """.stripMargin
+
+    val invalidTestGroup1AsJson = Json.parse(invalidTestGroup1)
+    val request = FakeRequest(POST, s"/group", FakeHeaders(), invalidTestGroup1AsJson)
+    val method = controller.create()(request)
+
+    s"should return $BAD_REQUEST" in {
+      status(method)(Timeout(20.seconds)) mustBe BAD_REQUEST
     }
 
   }
