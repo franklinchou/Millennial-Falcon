@@ -51,11 +51,12 @@ class UserServiceSpec extends AsyncFunSpec {
     }
 
     it("should support find all") {
-      userService.findAllUsers.map(u => assert(u.size == 2))
+      assert(userService.findAllUsers.size == 2)
     }
 
     it("should convert from Vertex -> UserModel") {
-      assert(userService.find(mockUser1.id).get == mockUser1)
+      val model: UserModel = userService.findUserVertex(mockUser1.id).get
+      assert(model == mockUser1)
     }
 
     it("should support delete") {
@@ -63,7 +64,7 @@ class UserServiceSpec extends AsyncFunSpec {
       
       // Test
       assert(result)
-      userService.findAllUsers.map(u => assert(u.size == 1))
+      assert(userService.findAllUsers.size == 1)
 
       // TODO This test is flaky
       // userService.findById(mockUser1.id).map(m => assert(m.isEmpty))

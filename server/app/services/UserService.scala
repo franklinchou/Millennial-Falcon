@@ -3,10 +3,10 @@ package services
 import com.google.inject.ImplementedBy
 import lib.StringContainer
 import models.field.IdField
-import models.vertex.{FeatureModel, GroupModel, UserModel}
+import models.vertex.UserModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[UserServiceJanus])
 abstract class UserService()(implicit ec: ExecutionContext) {
@@ -24,14 +24,7 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     *
     * @return
     */
-  def findAllUsers: Future[List[UserModel]]
-
-  /**
-    * Find which group a user belongs to
-    *
-    * @return
-    */
-  def findGroup(id: StringContainer[IdField]): Option[GroupModel]
+  def findAllUsers: Seq[Vertex]
 
   /**
     * Return the group vertex to which this user belongs
@@ -47,15 +40,7 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     * @param id user id
     * @return
     */
-  def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]]
-
-  /**
-    * Find a specific user by id
-    *
-    * @param id
-    * @return
-    */
-  def find(id: StringContainer[IdField]): Option[UserModel]
+  def findFeatures(id: StringContainer[IdField]): Seq[Vertex]
 
   /**
     * Add a user to the graph

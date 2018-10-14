@@ -4,10 +4,10 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.{GroupField, IdField}
-import models.vertex.GroupModel
+import models.vertex.{FeatureModel, GroupModel, UserModel}
 import play.api.libs.json._
 import play.api.mvc._
-import resources.{FeatureIdResource, GroupResource, UserResource}
+import resources.{FeatureIdResource, FeatureResource, GroupResource, UserResource}
 import services.{GroupService, UserService}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,18 +19,17 @@ class UserController @Inject()(cc: ControllerComponents,
                               (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def index() = Action.async { implicit rq: Request[AnyContent] =>
-    userService
-      .findAllUsers
-      .map { models =>
-        if (models.isEmpty) {
-          Ok(JsArray.empty)
-        } else {
-          val resources = models.map(um => UserResource(um))
-          val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
-          val json = Json.toJson(document)
-          Ok(json)
-        }
-      }
+    Future {
+      val resources: Seq[UserResource] =
+        userService
+          .findAllUsers
+          .map(u => u: UserModel)
+          .map(um => UserResource(um))
+
+      val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+      val json = Json.toJson(document)
+      Ok(json)
+    }
   }
 
 
@@ -43,7 +42,8 @@ class UserController @Inject()(cc: ControllerComponents,
   def whichGroup(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     val userId = StringContainer.apply[IdField](id)
     userService
-      .findGroup(userId)
+      .findGroupVertexByUser(userId)
+      .map(v => v:GroupModel)
       .map { group =>
         Future {
           val resource = GroupResource(group)
@@ -63,15 +63,18 @@ class UserController @Inject()(cc: ControllerComponents,
     * @return
     */
   def whichFeatures(id: String) = Action.async { implicit rq: Request[AnyContent] =>
-    val userId = StringContainer.apply[IdField](id)
-    userService
-      .findFeatures(userId)
-      .map { featureModels =>
-        val resource = featureModels.map(fm => FeatureIdResource(fm.id.value))
-        val document = DocumentMany(resource, Seq.empty[JsObject], JsObject.empty)
-        val json: JsValue = Json.toJson(document)
-        Ok(json)
-      }
+    Future {
+      val userId = StringContainer.apply[IdField](id)
+      val resources: Seq[FeatureResource] =
+        userService
+          .findFeatures(userId)
+          .map(v => v: FeatureModel)
+          .map(fm => FeatureResource(fm))
+
+      val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+      val json = Json.toJson(document)
+      Ok(json)
+    }
   }
 
 
@@ -88,7 +91,8 @@ class UserController @Inject()(cc: ControllerComponents,
         _ => Future { BadRequest },
         valid => {
           userService
-            .find(userContainer)
+            .findUserVertex(userContainer)
+            .map(v => v: UserModel)
             .map { user =>
               Future {
                 val resource = UserResource(user)
