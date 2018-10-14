@@ -143,10 +143,11 @@ class GroupController @Inject()(cc: ControllerComponents,
         _ => Future { BadRequest },
         data => {
           val user = data.userModel
-          groupService.findVertex(groupContainer).fold[Future[Result]](Future(NotFound))(_ => {
+          groupService.findVertex(groupContainer).fold[Future[Result]](Future(NotFound))(groupV => {
             groupService.associateNewUser(groupContainer, user.name)
             val resource = UserResource(user)
-            val document = DocumentSingle(resource, Seq.empty[Resource])
+            val associated = GroupResource(groupV)
+            val document = DocumentSingle(resource, Seq(associated))
             val json = Json.toJson(document)
             Future(Created(json))
           })
