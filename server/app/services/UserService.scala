@@ -40,6 +40,15 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     */
   def associateFeature(user: StringContainer[IdField], feature: StringContainer[IdField]): Option[Vertex]
 
+  /**
+    * Dissociate an EXISTING user from an EXISTING feature
+    *
+    * @param user
+    * @param feature
+    * @return
+    */
+  def removeFeature(user: StringContainer[IdField], feature: StringContainer[IdField]): Boolean
+
   def remove(id: StringContainer[IdField]): Boolean
 
 }

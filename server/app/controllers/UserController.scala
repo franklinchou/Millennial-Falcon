@@ -116,7 +116,13 @@ class UserController @Inject()(cc: ControllerComponents,
     */
   def removeFeature(user: String, feature: String) = Action.async {
     implicit request: Request[AnyContent] => {
-      Future { Ok }
+      val userContainer = StringContainer.apply[IdField](user)
+      val featureContainer = StringContainer.apply[IdField](feature)
+      if (userService.removeFeature(userContainer, featureContainer)) {
+        Future { NoContent }
+      } else {
+        Future { NotFound }
+      }
     }
   }
 
