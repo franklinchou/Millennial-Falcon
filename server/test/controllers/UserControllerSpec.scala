@@ -39,10 +39,10 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
     val request = FakeRequest(GET, s"/users")
     val method = controller.index()(request)
 
-    "should return 200" in {
+    "return 200" in {
       status(method)(Timeout(5.seconds)) mustBe OK
     }
-    "should return expected content" in {
+    "return expected content" in {
       val content = contentAsJson(method)(Timeout(5.seconds))
       val resources = models.map(um => UserResource(um))
       val documents = DocumentMany(resources, Seq.empty[JsObject], JsObject.empty)
