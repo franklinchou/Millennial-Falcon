@@ -124,41 +124,34 @@ class UserController @Inject()(cc: ControllerComponents,
     */
   def updateGroup(id: String) = Action(parse.tolerantJson).async {
     implicit rq: Request[JsValue] => {
-
       val body = rq.body
       val data = body \ "data"
-
-      // val typeAsOpt = (data \ "type").validate[String].asOpt.filter(_.equals(GroupType))
-      val groupIdAsOpt = (data \ "id").validate[String].asOpt
-
+      val groupId = (data \ "id").validate[String].asOpt.getOrElse("")
+      val groupContainer = StringContainer.apply[IdField](groupId)
       val userContainer = StringContainer.apply[IdField](id)
-      val groupContainer = StringContainer.apply[IdField](groupIdAsOpt.get)
-
       val userOpt = userService.findUserVertex(userContainer)
       val groupOpt = groupService.findVertex(groupContainer)
 
-      // TODO Clean this up after #35
       (userOpt, groupOpt) match {
         case (Some(user), Some(group)) =>
           userService.removeGroup(userContainer)
           groupService.associateExistingUser(group, user)
-          val resource = UserResource(user)
-          val groupResource = GroupResource(group)
-          val document = DocumentSingle(resource, Seq(groupResource))
-          val json = Json.toJson(document)
+          val json = jsonifyUserGroup(user, group)
           Future { Ok(json) }
-        case (Some(user), None) =>
+        case (Some(userV), None) =>
           val groupNameAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
-          val groupName = StringContainer.apply[GroupField](groupNameAsOpt.get)
-          val groupVertex = groupService.add(GroupModel.apply(groupName))
-          val _ = groupService.associateExistingUser(user, groupVertex)
-          val resource = UserResource(user)
-          val groupResource = GroupResource(groupVertex)
-          val document = DocumentSingle(resource, Seq(groupResource))
-          val json = Json.toJson(document)
-          Future { Created(json) }
+          groupNameAsOpt.fold[Future[Result]](Future(BadRequest))(gn => {
+            // Destroy the old group->user relationship
+            userService.removeGroup(userContainer)
+
+            val groupName = StringContainer.apply[GroupField](gn)
+            val groupV = groupService.add(GroupModel.apply(groupName))
+            groupService.associateExistingUser(userV, groupV)
+            val json = jsonifyUserGroup(userV, groupV)
+            Future(Created(json))
+          })
         case (None, _) =>
-          Future { NotFound }
+          Future(NotFound)
       }
     }
   }

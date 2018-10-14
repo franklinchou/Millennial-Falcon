@@ -49,7 +49,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
         jg
           .V()
           .has(vertex.Id, id.value)
-          .inE(edge.Group2UserEdge.label)
+          .bothE(edge.Group2UserEdge.label)
           .toList
       }.toOption
 
