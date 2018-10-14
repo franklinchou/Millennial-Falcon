@@ -16,6 +16,7 @@ object GroupResource {
     // TODO Abstract this to an outside JsonApi validation wrapper
     val attributes = (body \ "attributes").validate[JsObject].get
 
+    // TODO How to enforce type?
     (attributes \ "group").validate[String].fold(
       _ => JsError(),
       group => {
