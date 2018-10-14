@@ -35,6 +35,13 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
   def findAllUsers(groupId: StringContainer[IdField]): Seq[Vertex]
 
   /**
+    * Find all features/products associated with a given group
+    *
+    * @return
+    */
+  def findAllFeatures(groupId: StringContainer[IdField]): Seq[Vertex]
+
+  /**
     * Add a group to the graph
     *
     * @param m
@@ -51,6 +58,14 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     * @return
     */
   def associateNewUser(group: StringContainer[IdField], user: StringContainer[UserField]): Option[Vertex]
+
+  /**
+    * Associate an EXISTING group with an EXISTING feature
+    *
+    * @param group
+    * @param feature
+    */
+  def associateFeature(group: StringContainer[IdField], feature: StringContainer[IdField]): Option[Vertex]
 
   /**
     * Associate an EXISTING user with an EXISTING group

@@ -12,7 +12,8 @@ import utils.ListConversions._
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-class GroupServiceJanus @Inject()(userService: UserService)
+class GroupServiceJanus @Inject()(userService: UserService,
+                                  featureService: FeatureService)
                                  (implicit ec: ExecutionContext) extends GroupService {
 
   /**
@@ -44,7 +45,29 @@ class GroupServiceJanus @Inject()(userService: UserService)
       .hasLabel(vertex.GroupType)
       .has(vertex.Type, vertex.GroupType)
       .toList
+      .toSeq
   }
+
+
+  /**
+    * Find all features/products associated with a given group
+    *
+    * @return
+    */
+  def findAllFeatures(groupId: StringContainer[IdField]): Seq[Vertex] = {
+    findVertex(groupId)
+      .map { groupVertex =>
+        jg
+          .V(groupVertex.id())
+          .out(edge.Group2FeatureEdge.label)
+          .dedup()
+          .toList
+          .toSeq
+      }
+      .getOrElse(Seq.empty[Vertex])
+  }
+
+
 
   /**
     * Find all users associated with a group
@@ -111,6 +134,24 @@ class GroupServiceJanus @Inject()(userService: UserService)
     group.addEdge(edge.Group2UserEdge.label, user)
     jg.tx.commit()
   }
+
+
+  /**
+    * Associate an EXISTING group with an EXISTING feature
+    *
+    * @param group
+    * @param feature
+    */
+  def associateFeature(group: StringContainer[IdField],
+                       feature: StringContainer[IdField]): Option[Vertex] =
+    for {
+      featureVertex <- featureService.findVertex(feature)
+      groupVertex <- findVertex(group)
+    } yield {
+      groupVertex.addEdge(edge.Group2FeatureEdge.label, featureVertex)
+      jg.tx.commit()
+      featureVertex
+    }
 
 
   /**
