@@ -13,15 +13,8 @@ object JanusClient {
   val env = ConfigFactory.load.getString("env")
 
   val setup = ConfigFactory.load.getBoolean("setup")
-
-  /**
-    * Remove warnings on using indices when running tests.
-    */
-  if (env == "circle") {
-    EntitlementGraph.setUp(graph)
-  }
-
-  if (setup) {
+  
+  if (setup || env == "circle") {
     Logger.info("Setting up graph...")
     EntitlementGraph.setUp(graph)
     Logger.info("Graph setup complete.")
