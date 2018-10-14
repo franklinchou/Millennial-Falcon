@@ -4,16 +4,18 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.IdField
+import models.vertex.GroupType
 import play.api.libs.json._
 import play.api.mvc._
 import resources.{FeatureIdResource, GroupResource, UserResource}
-import services.UserService
+import services.{GroupService, UserService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents,
-                               userService: UserService)
+                               userService: UserService,
+                               groupService: GroupService)
                               (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def index() = Action.async { implicit rq: Request[AnyContent] =>
@@ -114,12 +116,32 @@ class UserController @Inject()(cc: ControllerComponents,
   def updateGroup(id: String) = Action(parse.tolerantJson).async {
     implicit rq: Request[JsValue] => {
 
-//      for {
-//        user <- userService.find()
-//      }
+      val body = rq.body
+      val data = body \ "data"
 
+      // val typeAsOpt = (data \ "type").validate[String].asOpt.filter(_.equals(GroupType))
+      val groupAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
 
-      Future { Ok }
+      val userContainer = StringContainer.apply[IdField](id)
+      val groupContainer = StringContainer.apply[IdField](groupAsOpt.get)
+
+      val userOpt = userService.findUserVertex(userContainer)
+      val groupOpt = groupService.findVertex(groupContainer)
+
+      (userOpt, groupOpt) match {
+        case (Some(user), Some(group)) =>
+          userService.removeGroup(userContainer)
+          groupService.associateExistingUser(group, user)
+          val resource = UserResource(user)
+          val groupResource = GroupResource(group)
+          val document = DocumentSingle(resource, Seq(groupResource))
+          val json = Json.toJson(document)
+          Future { Ok(json) }
+        case (Some(user), None) =>
+          Future { Created }
+        case (None, _) =>
+          Future { NotFound }
+      }
     }
   }
 

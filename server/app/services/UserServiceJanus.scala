@@ -23,7 +23,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     * @param id
     * @return
     */
-  private def findUserVertex(id: StringContainer[IdField]): Option[Vertex] = {
+  def findUserVertex(id: StringContainer[IdField]): Option[Vertex] = {
     Try {
       jg
         .V()
@@ -41,7 +41,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     * @param id
     * @return
     */
-  private def findGroupVertexByUser(id: StringContainer[IdField]): Option[Vertex] = {
+  def findGroupVertexByUser(id: StringContainer[IdField]): Option[Vertex] = {
     // If the query fails return None
     val query =
       Try {

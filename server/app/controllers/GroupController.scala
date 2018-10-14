@@ -127,7 +127,7 @@ class GroupController @Inject()(cc: ControllerComponents,
           val user = data.userModel
           groupService.find(groupContainer).map { groupOpt =>
             groupOpt.fold[Result](NotFound)(_ => {
-              val _ = groupService.associateUser(groupContainer, user.name)
+              val _ = groupService.associateNewUser(groupContainer, user.name)
               val resource = UserResource(user)
               val document = DocumentSingle(resource, Seq.empty[Resource])
               val json = Json.toJson(document)

@@ -2,7 +2,7 @@ package services
 
 import com.google.inject.ImplementedBy
 import lib.StringContainer
-import models.field.{FeatureField, IdField}
+import models.field.IdField
 import models.vertex.{FeatureModel, GroupModel, UserModel}
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
@@ -11,6 +11,19 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[UserServiceJanus])
 abstract class UserService()(implicit ec: ExecutionContext) {
 
+  /**
+    * Find a user by its id and return the user vertex
+    *
+    * @param id
+    * @return
+    */
+  def findUserVertex(id: StringContainer[IdField]): Option[Vertex]
+
+  /**
+    * Find all the users in the graph
+    *
+    * @return
+    */
   def findAllUsers: Future[List[UserModel]]
 
   /**
@@ -21,6 +34,14 @@ abstract class UserService()(implicit ec: ExecutionContext) {
   def findGroup(id: StringContainer[IdField]): Option[GroupModel]
 
   /**
+    * Return the group vertex to which this user belongs
+    *
+    * @param id
+    * @return
+    */
+  def findGroupVertexByUser(id: StringContainer[IdField]): Option[Vertex]
+
+  /**
     * Find which features this user has access to
     *
     * @param id user id
@@ -28,8 +49,20 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     */
   def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]]
 
+  /**
+    * Find a specific user by id
+    *
+    * @param id
+    * @return
+    */
   def find(id: StringContainer[IdField]): Option[UserModel]
 
+  /**
+    * Add a user to the graph
+    *
+    * @param m
+    * @return
+    */
   def add(m: UserModel): Vertex
 
   /**
@@ -58,6 +91,12 @@ abstract class UserService()(implicit ec: ExecutionContext) {
     */
   def removeGroup(user: StringContainer[IdField]): Boolean
 
+  /**
+    * Remove a user from the graph
+    *
+    * @param id
+    * @return
+    */
   def remove(id: StringContainer[IdField]): Boolean
 
 }

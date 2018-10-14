@@ -22,13 +22,15 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @param id Group id
     * @return
     */
-  def findVertex(id: StringContainer[IdField]): Vertex = {
-    jg
-      .V()
-      .hasLabel(vertex.GroupType)
-      .has(vertex.Type, vertex.GroupType)
-      .has(vertex.Id, id.value)
-      .next()
+  def findVertex(id: StringContainer[IdField]): Option[Vertex] = {
+    Try {
+      jg
+        .V()
+        .hasLabel(vertex.GroupType)
+        .has(vertex.Type, vertex.GroupType)
+        .has(vertex.Id, id.value)
+        .next()
+    }.toOption
   }
 
   /**
@@ -38,11 +40,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @return
     */
   def find(id: StringContainer[IdField]): Future[Option[GroupModel]] =
-    Future {
-      Try {
-        findVertex(id)
-      }.toOption.map(v => v: GroupModel)
-    }
+    Future { findVertex(id).map(v => v: GroupModel) }
 
 
   /**
@@ -73,18 +71,14 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @return
     */
   def findAllUsers(groupId: StringContainer[IdField]): Future[List[UserModel]] = {
-    Try {
-      val groupVertex = findVertex(groupId)
-      jg
-        .V(groupVertex.id)
-        .out()
-        .toList
-        .map(v => v: UserModel)
-    } match {
-      case Success(users) => Future { users }
-      case Failure(e) =>
-        Logger.error(s"`findAllUsers` failed with error $e")
-        Future { List.empty[UserModel] }
+    Future {
+      findVertex(groupId).map { group =>
+        jg
+          .V(group)
+          .out()
+          .toList
+          .map(v => v: UserModel)
+      }.getOrElse(List.empty[UserModel])
     }
   }
 
@@ -112,21 +106,28 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @param name  Name of new user to create
     * @return
     */
-  def associateUser(group: StringContainer[IdField], name: StringContainer[UserField]): Option[Vertex] = {
+  def associateNewUser(group: StringContainer[IdField], name: StringContainer[UserField]): Option[Vertex] = {
     val userModel = UserModel.apply(name)
     val user: Vertex = userService.add(userModel)
+    findVertex(group)
+      .map { g =>
+        g.addEdge(edge.Group2UserEdge.label, user)
+        jg.tx.commit()
+        user
+      }
+  }
 
-    Try {
-      findVertex(group)
-    } match {
-      case Success(g) =>
-        findVertex(group).addEdge(edge.Group2UserEdge.label, user)
-        val _ = jg.tx.commit()
-        Some(user)
-      case Failure(e) =>
-        Logger.error(s"Error when attempting to find group, $e")
-        None
-    }
+
+  /**
+    * Associate an EXISTING user with an EXISTING group
+    *
+    * @param group Group id
+    * @param user  User vertex
+    * @return
+    */
+  def associateExistingUser(group: Vertex, user: Vertex): Unit = {
+    group.addEdge(edge.Group2UserEdge.label, user)
+    jg.tx.commit()
   }
 
 
@@ -137,16 +138,10 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @return
     */
   def remove(id: StringContainer[IdField]): Boolean = {
-    Try {
-      findVertex(id).remove()
-    } match {
-      case Success(_) =>
-        val _ = jg.tx.commit()
-        true
-      case Failure(e) =>
-        val _ = jg.tx().rollback()
-        Logger.error(s"Error when attempting to remove group: ${id.value}, $e")
-        false
+    findVertex(id).exists { v =>
+      v.remove()
+      jg.tx.commit()
+      true
     }
   }
 

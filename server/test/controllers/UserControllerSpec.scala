@@ -12,7 +12,7 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import resources.UserResource
-import services.UserService
+import services.{GroupService, UserService}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -25,7 +25,9 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
 
     val mockUserService = mock[UserService]
 
-    val controller = new UserController(stubControllerComponents(), mockUserService)
+    val mockGroupService = mock[GroupService]
+
+    val controller = new UserController(stubControllerComponents(), mockUserService, mockGroupService)
 
     val models =
       List(
