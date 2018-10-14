@@ -14,10 +14,10 @@ object GroupResource {
     val body = js \ "data"
 
     // TODO Abstract this to an outside JsonApi validation wrapper
-    val attributes = (body \ "attributes").validate[JsObject].get
     val `type` = (body \ "type").validate[String].asOpt
     val valid =
       for {
+        attributes <- (body \ "attributes").validate[JsObject].asOpt
         group <- (attributes \ "group").validate[String].asOpt
         if `type`.exists(_.equals(vertex.GroupType))
       } yield {

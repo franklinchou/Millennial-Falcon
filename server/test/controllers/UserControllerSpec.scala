@@ -2,13 +2,12 @@ package controllers
 
 import akka.util.Timeout
 import lib.StringContainer
-import lib.jsonapi.DocumentMany
 import models.vertex.UserModel
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.JsArray
 import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import resources.UserResource
@@ -42,14 +41,11 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
     "return 200" in {
       status(method)(Timeout(5.seconds)) mustBe OK
     }
+
     "return expected content" in {
       val content = contentAsJson(method)(Timeout(5.seconds))
-      val resources = models.map(um => UserResource(um))
-      val documents = DocumentMany(resources, Seq.empty[JsObject], JsObject.empty)
-      val expected = Json.toJson(documents)
-      assert(expected == content)
+      assert((content \ "data").validate[Seq[UserResource]].isSuccess)
     }
-
   }
 
 }
