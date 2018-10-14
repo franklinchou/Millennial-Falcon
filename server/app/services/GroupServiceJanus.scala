@@ -31,7 +31,7 @@ class GroupServiceJanus @Inject()(userService: UserService)
         .next()
     }.toOption
   }
-
+                                   
 
   /**
     * Find all groups/clients
