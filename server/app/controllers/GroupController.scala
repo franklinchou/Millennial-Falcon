@@ -190,6 +190,13 @@ class GroupController @Inject()(cc: ControllerComponents,
     }
   }
 
+  /**
+   * Dissociate an EXISTING group from an EXISTING feature
+   *
+   * @param group
+   * @param feature
+   * @return
+   */
   def removeFeature(group: String, feature: String) = Action.async {
     implicit request: Request[AnyContent] => {
       val groupContainer = StringContainer.apply[IdField](group)
@@ -201,7 +208,6 @@ class GroupController @Inject()(cc: ControllerComponents,
       }
     }
   }
-
 
 
   /**

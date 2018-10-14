@@ -195,7 +195,6 @@ class GroupServiceJanus @Inject()(userService: UserService,
   }
 
 
-
   /**
     * Remove a user from the graph given its id
     *
