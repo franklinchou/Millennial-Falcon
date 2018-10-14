@@ -3,21 +3,13 @@ package services
 import com.google.inject.ImplementedBy
 import lib.StringContainer
 import models.field.{IdField, UserField}
-import models.vertex.{GroupModel, UserModel}
+import models.vertex.GroupModel
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[GroupServiceJanus])
 abstract class GroupService()(implicit ec: ExecutionContext) {
-
-  /**
-    * Find a single group by its id
-    *
-    * @param id
-    * @return
-    */
-  def find(id: StringContainer[IdField]): Future[Option[GroupModel]]
 
   /**
     * Given the group id, find the associated vertex
@@ -32,7 +24,7 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     *
     * @return
     */
-  def findAllGroups: Future[Seq[GroupModel]]
+  def findAllGroups: Seq[Vertex]
 
   /**
     * Find all the users associated with a given group
@@ -40,12 +32,16 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     * @param groupId
     * @return
     */
-  def findAllUsers(groupId: StringContainer[IdField]): Future[List[UserModel]]
+  def findAllUsers(groupId: StringContainer[IdField]): Seq[Vertex]
 
+  /**
+    * Add a group to the graph
+    *
+    * @param m
+    * @return
+    */
   def add(m: GroupModel): Vertex
-
-  def remove(id: StringContainer[IdField]): Boolean
-
+  
   /**
     * Create a new user and associate it with a given group
     * The group must already exist. If the group does not already exist, return None.
@@ -64,5 +60,13 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
     * @return
     */
   def associateExistingUser(group: Vertex, user: Vertex): Unit
+
+  /**
+    * Remove a group from the graph
+    *
+    * @param id
+    * @return
+    */
+  def remove(id: StringContainer[IdField]): Boolean
 
 }

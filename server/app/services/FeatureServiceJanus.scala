@@ -39,38 +39,35 @@ class FeatureServiceJanus @Inject()()
 
 
   /**
-    * Safe find a feature by its id
+    * Safe find a feature vertex by its id
     *
     * @param id
     * @return
     */
-  def find(id: StringContainer[IdField]): Future[Option[FeatureModel]] = {
-    Future {
-      Try {
-        jg
-          .V()
-          .hasLabel(vertex.FeatureType)
-          .has(vertex.Type, vertex.FeatureType)
-          .has(vertex.Id, id.value)
-          .next()
-      }.toOption.map(v => v: FeatureModel)
-    }
-  }
-
-
-  def findAllFeatures: Future[List[FeatureModel]] = {
+  def find(id: StringContainer[IdField]): Option[Vertex] = {
     Try {
       jg
         .V()
         .hasLabel(vertex.FeatureType)
         .has(vertex.Type, vertex.FeatureType)
-        .toList
-        .map(v => v: FeatureModel)  // Uses `ListConversions`
+        .has(vertex.Id, id.value)
+        .next()
+    }.toOption
+  }
+
+
+  def findAllFeatures: Seq[Vertex] = {
+    Try {
+      jg
+        .V()
+        .hasLabel(vertex.FeatureType)
+        .has(vertex.Type, vertex.FeatureType)
+        .toList // Uses `ListConversions`
     } match {
-      case Success(features) => Future { features }
+      case Success(features) => features
       case Failure(e) =>
         Logger.error(s"`findAllFeatures` failed with error $e")
-        Future { List.empty[FeatureModel ]}
+        Seq.empty[Vertex ]
     }
   }
 

@@ -4,7 +4,7 @@ import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.{GroupField, IdField}
-import models.vertex.{GroupModel, GroupType}
+import models.vertex.{GroupModel, GroupType, UserModel}
 import play.api.libs.json._
 import play.api.mvc._
 import resources.{GroupResource, UserResource}
@@ -23,33 +23,31 @@ class GroupController @Inject()(cc: ControllerComponents,
     * @return
     */
   def index() = Action.async { implicit rq: Request[AnyContent] =>
-    groupService
-      .findAllGroups
-      .map { models =>
-        if (models.isEmpty) {
-          Ok(JsArray.empty) // TODO Get rid of this ugly logic by wrapping in a Monad?
-        } else {
-          val resources = models.map(m => GroupResource(m))
-          val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
-          val json = Json.toJson(document)
-          Ok(json)
-        }
-      }
+    Future {
+      val resources: Seq[GroupResource] =
+        groupService
+          .findAllGroups
+          .map(v => v: GroupModel)
+          .map(gm => GroupResource(gm))
+
+      val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
+      val json = Json.toJson(document)
+      Ok(json)
+    }
   }
 
   def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
-      .find(StringContainer.apply[IdField](id))
-      .map { groupModelOpt =>
-        groupModelOpt
-          .map { m => // TODO Change to for-comprehension?
-            val resource = GroupResource(m)
-            val document = DocumentSingle(resource, Seq.empty[Resource])
-            val json = Json.toJson(document)
-            Ok(json)
-          }
-          .getOrElse(Ok(JsNull))
+      .findVertex(StringContainer.apply[IdField](id))
+      .map { m =>
+        Future {
+          val resource = GroupResource(m)
+          val document = DocumentSingle(resource, Seq.empty[Resource])
+          val json = Json.toJson(document)
+          Ok(json)
+        }
       }
+      .getOrElse(Future { Ok(JsNull) })
   }
 
 
@@ -60,21 +58,19 @@ class GroupController @Inject()(cc: ControllerComponents,
     * @return
     */
   def showUsers(groupId: String) = Action.async { implicit rq: Request[AnyContent] =>
+    Future {
+      val groupIdContainer = StringContainer.apply[IdField](groupId)
 
-    val groupIdContainer = StringContainer.apply[IdField](groupId)
+      val userResources =
+        groupService
+          .findAllUsers(groupIdContainer)
+          .map(v => v: UserModel)
+          .map(um => UserResource(um))
 
-    groupService
-      .findAllUsers(groupIdContainer)
-      .map { models =>
-        if (models.isEmpty) {
-          Ok(JsArray.empty)
-        } else {
-          val resources: Seq[UserResource] = models.map(m => UserResource(m))
-          val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
-          val json = Json.toJson(document)
-          Ok(json)
-        }
-      }
+      val document = DocumentMany(userResources, Seq.empty[JsObject], Json.obj())
+      val json = Json.toJson(document)
+      Ok(json)
+    }
   }
 
 
@@ -125,20 +121,17 @@ class GroupController @Inject()(cc: ControllerComponents,
         _ => Future { BadRequest },
         data => {
           val user = data.userModel
-          groupService.find(groupContainer).map { groupOpt =>
-            groupOpt.fold[Result](NotFound)(_ => {
-              val _ = groupService.associateNewUser(groupContainer, user.name)
-              val resource = UserResource(user)
-              val document = DocumentSingle(resource, Seq.empty[Resource])
-              val json = Json.toJson(document)
-              Created(json)
-            }
-            )
-          }
-        }
-      )
+          groupService.findVertex(groupContainer).fold[Future[Result]](Future(NotFound))(_ => {
+            groupService.associateNewUser(groupContainer, user.name)
+            val resource = UserResource(user)
+            val document = DocumentSingle(resource, Seq.empty[Resource])
+            val json = Json.toJson(document)
+            Future(Created(json))
+          })
+        })
     }
   }
+
 
   /**
     * Delete a group based on its id

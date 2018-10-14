@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
 import models.field.IdField
+import models.vertex.FeatureModel
 import play.api.libs.json._
 import play.api.mvc._
 import resources.FeatureResource
@@ -17,30 +18,29 @@ class FeatureController @Inject()(cc: ControllerComponents,
                                  (implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def index() = Action.async { implicit request: Request[AnyContent] =>
-    featureService
-      .findAllFeatures
-      .map {
-        models =>
-          if (models.isEmpty) {
-            Ok(JsArray.empty)
-          } else {
-            val resources = models.map(m => FeatureResource(m))
-            val document = DocumentMany(resources, Seq.empty[JsObject], Json.obj())
-            val json = Json.toJson(document)
-            Ok(json)
+    Future {
+      val resource: Seq[FeatureResource] =
+        featureService
+          .findAllFeatures
+          .map(v => v: FeatureModel)
+          .map { fm => FeatureResource(fm)
           }
-      }
+
+      val document = DocumentMany(resource, Seq.empty[JsObject], Json.obj())
+      val json = Json.toJson(document)
+      Ok(json)
+    }
   }
 
 
   def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     val idContainer = StringContainer.apply[IdField](id)
-    for {
-      featureOpt <- featureService.find(idContainer)
-    } yield {
-      featureOpt
-        .map { f =>
-          val resource = FeatureResource(f)
+    Future {
+      featureService
+        .find(idContainer)
+        .map(v => v: FeatureModel)
+        .map { fm =>
+          val resource = FeatureResource(fm)
           val document = DocumentSingle(resource, Seq.empty[Resource])
           val json = Json.toJson(document)
           Ok(json)

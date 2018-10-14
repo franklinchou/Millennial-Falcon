@@ -4,14 +4,14 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
-import models.vertex.{FeatureModel, GroupModel, UserModel}
+import models.vertex.{FeatureModel, UserModel}
 import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import play.api.Logger
 import utils.ListConversions._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 class UserServiceJanus @Inject()(featureService: FeatureService)
@@ -33,7 +33,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
         .next()
     }.toOption
   }
-
+                                  
 
   /**
     * Find the group associated with a user and return the group vertex
@@ -58,37 +58,14 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
   }
 
 
-  def findAllUsers: Future[List[UserModel]] =
-    Future.successful {
-      jg
-        .V()
-        .hasLabel(vertex.UserType)
-        .has(vertex.Type, vertex.UserType)
-        .toList
-        .map(v => v: UserModel)
-    }
+  def findAllUsers: Seq[Vertex] =
+    jg
+      .V()
+      .hasLabel(vertex.UserType)
+      .has(vertex.Type, vertex.UserType)
+      .toList
+      .toSeq
 
-
-  /**
-    * Safe find for external use
-    *
-    * @param id
-    * @return
-    */
-  def find(id: StringContainer[IdField]): Option[UserModel] = {
-    findUserVertex(id).map(v => v: UserModel)
-  }
-
-
-  /**
-    * Given a user id, find which group that user belongs to
-    *
-    * @param id
-    * @return
-    */
-  def findGroup(id: StringContainer[IdField]): Option[GroupModel] = {
-    findGroupVertexByUser(id).map(vm => vm: GroupModel)
-  }
 
 
   /**
@@ -97,19 +74,17 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
     * @param id user id
     * @return
     */
-  def findFeatures(id: StringContainer[IdField]): Future[List[FeatureModel]] = {
-    Future {
-      findUserVertex(id)
-        .map { userVertex =>
-          jg
-            .V(userVertex.id)
-            .out(edge.User2FeatureEdge.label)
-            .dedup()
-            .toList
-            .map(li => li: FeatureModel)
-        }
-        .getOrElse(List.empty[FeatureModel])
-    }
+  def findFeatures(id: StringContainer[IdField]): Seq[Vertex] = {
+    findUserVertex(id)
+      .map { userVertex =>
+        jg
+          .V(userVertex.id)
+          .out(edge.User2FeatureEdge.label)
+          .dedup()
+          .toList
+          .toSeq
+      }
+      .getOrElse(Seq.empty[Vertex])
   }
 
 
