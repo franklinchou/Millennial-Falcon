@@ -18,8 +18,8 @@ object GroupResource {
     val `type` = (body \ "type").validate[String].asOpt
     val valid =
       for {
-        _ <- `type`.map(_.equals(vertex.GroupType))
         group <- (attributes \ "group").validate[String].asOpt
+        if `type`.exists(_.equals(vertex.GroupType))
       } yield {
         val model = GroupModel.apply(StringContainer.apply[GroupField](group))
         val resource = GroupResource.apply(model)
