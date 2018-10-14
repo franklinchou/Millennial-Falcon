@@ -77,6 +77,15 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
   def associateExistingUser(group: Vertex, user: Vertex): Unit
 
   /**
+    * Dissociate a given feature from a group
+    *
+    * @param group
+    * @param feature
+    * @return
+    */
+  def removeFeature(group: StringContainer[IdField], feature: StringContainer[IdField]): Boolean
+
+  /**
     * Remove a group from the graph
     *
     * @param id
