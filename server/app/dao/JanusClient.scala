@@ -15,15 +15,24 @@ object JanusClient {
   val env = ConfigFactory.load.getString("env")
 
   val setup = ConfigFactory.load.getBoolean("setup")
-  
-  if (setup || env == "circle") {
-    val start = System.nanoTime()
-    Logger.info("Setting up graph...")
-    EntitlementGraph.setUp(graph)
-    val end = System.nanoTime()
-    val elapsed = Duration(end - start, NANOSECONDS).toMillis
-    Logger.info(s"Graph setup complete after $elapsed milliseconds")
+
+  val setupMessage = (e: String) => {
+    if (e == "circle") {
+      "Setting up in-memory graph"
+    } else {
+      val host = ConfigFactory.load.getString("cassandra.host")
+      val port = ConfigFactory.load.getString("cassandra.port")
+      s"Setting up graph on $host:$port"
+    }
   }
+
+  val start = System.nanoTime()
+  Logger.info(setupMessage(env))
+  EntitlementGraph.setUp(graph)
+  val end = System.nanoTime()
+  val elapsed = Duration(end - start, NANOSECONDS).toMillis
+  Logger.info(s"Graph setup complete after $elapsed milliseconds")
+
 
   val jg: GraphTraversalSource = graph.traversal()
 

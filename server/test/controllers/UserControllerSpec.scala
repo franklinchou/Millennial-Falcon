@@ -4,15 +4,15 @@ import akka.util.Timeout
 import lib.StringContainer
 import lib.jsonapi.DocumentMany
 import models.vertex.UserModel
-import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import resources.UserResource
-import services.{GroupService, UserService}
+import services.{GroupService, UserServiceJanus}
 
 import scala.concurrent.duration._
 
@@ -20,32 +20,32 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  "User Controller" should {
+  "User Controller, show all users" should {
 
-    val mockUserService = mock[UserService]
+    val application = new GuiceApplicationBuilder()
+    val testUserService = application.injector.instanceOf[UserServiceJanus]
 
     val mockGroupService = mock[GroupService]
+    val controller = new UserController(stubControllerComponents(), testUserService, mockGroupService)
 
-    val controller = new UserController(stubControllerComponents(), mockUserService, mockGroupService)
-
-    val models =
+    val models = {
       List(
         UserModel.apply(StringContainer.apply("mock-1")),
         UserModel.apply(StringContainer.apply("mock-2"))
       )
+    }
 
-    val userResources: Seq[UserResource] = models.map(um => UserResource(um))
+    models.foreach(m => testUserService.add(m)) // add models
+    val request = FakeRequest(GET, s"/users")
+    val method = controller.index()(request)
 
-    "show all users" ignore {
-      // TODO Mock vertex?
-      // when(mockUserService.findAllUsers).thenReturn(models)
-      val request = FakeRequest(GET, s"/users")
-      val method = controller.index()(request)
-
+    "should return 200" in {
       status(method)(Timeout(5.seconds)) mustBe OK
-
+    }
+    "should return expected content" in {
       val content = contentAsJson(method)(Timeout(5.seconds))
-      val documents = DocumentMany(userResources, Seq.empty[JsObject], JsObject.empty)
+      val resources = models.map(um => UserResource(um))
+      val documents = DocumentMany(resources, Seq.empty[JsObject], JsObject.empty)
       val expected = Json.toJson(documents)
       assert(content == expected)
     }
