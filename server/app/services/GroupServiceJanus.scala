@@ -44,7 +44,29 @@ class GroupServiceJanus @Inject()(userService: UserService)
       .hasLabel(vertex.GroupType)
       .has(vertex.Type, vertex.GroupType)
       .toList
+      .toSeq
   }
+
+
+  /**
+    * Find all features/products associated with a given group
+    *
+    * @return
+    */
+  def findAllFeatures(groupId: StringContainer[IdField]): Seq[Vertex] = {
+    findVertex(groupId)
+      .map { groupVertex =>
+        jg
+          .V(groupVertex.id())
+          .out(edge.Group2FeatureEdge.label)
+          .dedup()
+          .toList
+          .toSeq
+      }
+      .getOrElse(Seq.empty[Vertex])
+  }
+
+
 
   /**
     * Find all users associated with a group

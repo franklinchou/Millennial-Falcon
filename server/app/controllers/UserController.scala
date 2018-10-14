@@ -62,7 +62,7 @@ class UserController @Inject()(cc: ControllerComponents,
     * @param id
     * @return
     */
-  def whichFeatures(id: String) = Action.async { implicit rq: Request[AnyContent] =>
+  def showFeatures(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     Future {
       val userId = StringContainer.apply[IdField](id)
       val resources: Seq[FeatureResource] =
@@ -90,6 +90,11 @@ class UserController @Inject()(cc: ControllerComponents,
       body.validate[List[FeatureIdResource]].fold[Future[Result]](
         _ => Future { BadRequest },
         valid => {
+          // Insert the feature relationship
+          valid.foreach { feature =>
+            val id = StringContainer.apply[IdField](feature.id)
+            userService.associateFeature(userContainer, id)
+          }
           userService
             .findUserVertex(userContainer)
             .map(v => v: UserModel)
