@@ -22,12 +22,12 @@ abstract class FeatureService()(implicit ec: ExecutionContext) {
 
 
   /**
-    * Safe find a feature by its id
+    * Safe find a feature vertex by its id
     *
     * @param id
     * @return
     */
-  def find(id: StringContainer[IdField]): Future[Option[FeatureModel]]
+  def find(id: StringContainer[IdField]): Option[Vertex]
 
 
   /**
@@ -35,7 +35,7 @@ abstract class FeatureService()(implicit ec: ExecutionContext) {
     *
     * @return
     */
-  def findAllFeatures: Future[List[FeatureModel]]
+  def findAllFeatures: Seq[Vertex]
 
   /**
     * Add a new [[FeatureModel]] to the graph

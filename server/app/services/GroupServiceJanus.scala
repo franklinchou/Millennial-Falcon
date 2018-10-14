@@ -7,11 +7,10 @@ import models.field.{IdField, UserField}
 import models.vertex.{GroupModel, UserModel}
 import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import play.api.Logger
 import utils.ListConversions._
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 class GroupServiceJanus @Inject()(userService: UserService)
                                  (implicit ec: ExecutionContext) extends GroupService {
@@ -32,36 +31,19 @@ class GroupServiceJanus @Inject()(userService: UserService)
         .next()
     }.toOption
   }
-
-  /**
-    * Safe find for external use.
-    *
-    * @param id
-    * @return
-    */
-  def find(id: StringContainer[IdField]): Future[Option[GroupModel]] =
-    Future { findVertex(id).map(v => v: GroupModel) }
-
+                                   
 
   /**
     * Find all groups/clients
     *
     * @return
     */
-  def findAllGroups: Future[Seq[GroupModel]] = {
-    Try {
-      jg
-        .V()
-        .hasLabel(vertex.GroupType)
-        .has(vertex.Type, vertex.GroupType)
-        .toList
-        .map(v => v: GroupModel)
-    } match {
-      case Success(groups) => Future { groups }
-      case Failure(e) =>
-        Logger.error(s"`findAllGroups` failed with error $e")
-        Future { Seq.empty[GroupModel] }
-    }
+  def findAllGroups: Seq[Vertex] = {
+    jg
+      .V()
+      .hasLabel(vertex.GroupType)
+      .has(vertex.Type, vertex.GroupType)
+      .toList
   }
 
   /**
@@ -70,16 +52,16 @@ class GroupServiceJanus @Inject()(userService: UserService)
     * @param groupId
     * @return
     */
-  def findAllUsers(groupId: StringContainer[IdField]): Future[List[UserModel]] = {
-    Future {
-      findVertex(groupId).map { group =>
+  def findAllUsers(groupId: StringContainer[IdField]): Seq[Vertex] = {
+    findVertex(groupId)
+      .map { group =>
         jg
           .V(group)
           .out()
           .toList
-          .map(v => v: UserModel)
-      }.getOrElse(List.empty[UserModel])
-    }
+          .toSeq
+      }
+      .getOrElse(Seq.empty[Vertex])
   }
 
 
