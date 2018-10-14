@@ -168,6 +168,11 @@ class GroupController @Inject()(cc: ControllerComponents,
       body.validate[List[FeatureIdResource]].fold[Future[Result]](
         _ => Future { BadRequest },
         valid => {
+          // Insert feature relationship
+          valid.foreach { feature =>
+            val id = StringContainer.apply[IdField](feature.id)
+            groupService.associateFeature(groupContainer, id)
+          }
           groupService
             .findVertex(groupContainer)
             .map(v => v: GroupModel)

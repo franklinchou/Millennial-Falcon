@@ -60,6 +60,14 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
   def associateNewUser(group: StringContainer[IdField], user: StringContainer[UserField]): Option[Vertex]
 
   /**
+    * Associate an EXISTING group with an EXISTING feature
+    *
+    * @param group
+    * @param feature
+    */
+  def associateFeature(group: StringContainer[IdField], feature: StringContainer[IdField]): Option[Vertex]
+
+  /**
     * Associate an EXISTING user with an EXISTING group
     *
     * @param group Group id
