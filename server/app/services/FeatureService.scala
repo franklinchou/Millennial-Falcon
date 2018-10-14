@@ -6,7 +6,7 @@ import models.field.IdField
 import models.vertex._
 import org.apache.tinkerpop.gremlin.structure.Vertex
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 
 @ImplementedBy(classOf[FeatureServiceJanus])

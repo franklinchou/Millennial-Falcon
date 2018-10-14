@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import dao.JanusClient.jg
 import lib.StringContainer
 import models.field.IdField
-import models.vertex.{FeatureModel, UserModel}
+import models.vertex.UserModel
 import models.{edge, vertex}
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__
 import org.apache.tinkerpop.gremlin.structure.Vertex

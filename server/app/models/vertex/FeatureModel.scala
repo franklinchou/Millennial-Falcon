@@ -7,7 +7,7 @@ import lib.StringContainer
 import models.field.{FeatureField, IdField}
 import models.vertex
 import org.apache.tinkerpop.gremlin.structure.Vertex
-import play.api.libs.json.{Json, OFormat, OWrites}
+import play.api.libs.json.OFormat
 
 object FeatureModel {
 

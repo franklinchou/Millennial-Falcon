@@ -7,7 +7,6 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsArray
 import play.api.test.Helpers.{GET, OK, contentAsJson, status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import resources.UserResource
