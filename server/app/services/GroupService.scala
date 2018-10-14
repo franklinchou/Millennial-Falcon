@@ -42,12 +42,12 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
   def findAllFeatures(groupId: StringContainer[IdField]): Seq[Vertex]
 
   /**
-    * Add a group to the graph
+    * Safe add a group to the graph
     *
     * @param m
     * @return
     */
-  def add(m: GroupModel): Vertex
+  def add(m: GroupModel): Option[Vertex]
   
   /**
     * Create a new user and associate it with a given group

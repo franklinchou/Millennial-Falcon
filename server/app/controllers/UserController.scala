@@ -132,6 +132,7 @@ class UserController @Inject()(cc: ControllerComponents,
       val userOpt = userService.findUserVertex(userContainer)
       val groupOpt = groupService.findVertex(groupContainer)
 
+      // TODO Validation can probably be cleaned up with Resource Model
       (userOpt, groupOpt) match {
         case (Some(user), Some(group)) =>
           userService.removeGroup(userContainer)
@@ -141,16 +142,16 @@ class UserController @Inject()(cc: ControllerComponents,
         case (Some(userV), None) =>
           val groupNameAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
           groupNameAsOpt.fold[Future[Result]](Future(BadRequest))(gn => {
-            // Destroy the old group->user relationship
             userService.removeGroup(userContainer)
-
             val groupName = StringContainer.apply[GroupField](gn)
-
-            // TODO Will fail with 500 if group already exists
-            val groupV = groupService.add(GroupModel.apply(groupName))
-            groupService.associateExistingUser(userV, groupV)
-            val json = jsonifyUserGroup(userV, groupV)
-            Future(Created(json))
+            groupService
+              .add(GroupModel.apply(groupName))
+              .map { groupV =>
+                groupService.associateExistingUser(userV, groupV)
+                val json = jsonifyUserGroup(userV, groupV)
+                Future(Created(json))
+              }
+              .getOrElse(Future(Conflict(s"Group with id=$groupId already exists")))
           })
         case (None, _) =>
           Future(NotFound)
