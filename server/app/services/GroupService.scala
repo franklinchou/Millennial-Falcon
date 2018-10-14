@@ -20,6 +20,14 @@ abstract class GroupService()(implicit ec: ExecutionContext) {
   def findVertex(id: StringContainer[IdField]): Option[Vertex]
 
   /**
+    * Given the group id, find the associated vertex
+    *
+    * @param id Group id
+    * @return
+    */
+  def findVertex(id: StringContainer[IdField]): Option[Vertex]
+
+  /**
     * Find all groups/clients
     *
     * @return

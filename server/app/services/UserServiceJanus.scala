@@ -33,7 +33,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
         .next()
     }.toOption
   }
-
+                                  
 
   /**
     * Find the group associated with a user and return the group vertex
@@ -65,6 +65,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
       .has(vertex.Type, vertex.UserType)
       .toList
       .toSeq
+
 
 
   /**
