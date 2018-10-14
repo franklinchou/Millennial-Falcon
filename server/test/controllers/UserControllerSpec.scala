@@ -29,7 +29,7 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
     val controller = new UserController(stubControllerComponents(), testUserService, mockGroupService)
 
     val models = {
-      List(
+      Seq(
         UserModel.apply(StringContainer.apply("mock-1")),
         UserModel.apply(StringContainer.apply("mock-2"))
       )
@@ -47,8 +47,7 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
       val resources = models.map(um => UserResource(um))
       val documents = DocumentMany(resources, Seq.empty[JsObject], JsObject.empty)
       val expected = Json.toJson(documents)
-
-      assert(expected.validate[JsObject].get.value.toSet.diff(content.validate[JsObject].get.value.toSet).toMap == Map.empty)
+      assert(expected == content)
     }
 
   }
