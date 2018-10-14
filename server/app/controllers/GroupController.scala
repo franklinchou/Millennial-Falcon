@@ -141,7 +141,7 @@ class GroupController @Inject()(cc: ControllerComponents,
     implicit request: Request[JsValue] => {
       val body = request.body
       val groupContainer = StringContainer[IdField](groupId) // wrapped group id
-      body.validate[UserResource].fold[Future[Result]](
+      (body \ "data").validate[UserResource].fold[Future[Result]](
         _ => Future { BadRequest },
         data => {
           val user = data.userModel
