@@ -14,17 +14,19 @@ object GroupResource {
     val body = js \ "data"
 
     // TODO Abstract this to an outside JsonApi validation wrapper
-    val attributes = (body \ "attributes").validate[JsObject].get
-
-    // TODO How to enforce type?
-    (attributes \ "group").validate[String].fold(
-      _ => JsError(),
-      group => {
+    val `type` = (body \ "type").validate[String].asOpt
+    val valid =
+      for {
+        attributes <- (body \ "attributes").validate[JsObject].asOpt
+        group <- (attributes \ "group").validate[String].asOpt
+        if `type`.exists(_.equals(vertex.GroupType))
+      } yield {
         val model = GroupModel.apply(StringContainer.apply[GroupField](group))
         val resource = GroupResource.apply(model)
         JsSuccess(resource)
       }
-    )
+
+    valid.getOrElse(JsError())
   }
 }
 

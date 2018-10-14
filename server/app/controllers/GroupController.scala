@@ -36,6 +36,12 @@ class GroupController @Inject()(cc: ControllerComponents,
     }
   }
 
+  /**
+    * Find a group by id
+    *
+    * @param id
+    * @return
+    */
   def find(id: String) = Action.async { implicit rq: Request[AnyContent] =>
     groupService
       .findVertex(StringContainer.apply[IdField](id))
@@ -104,26 +110,22 @@ class GroupController @Inject()(cc: ControllerComponents,
   def create() = Action(parse.tolerantJson).async {
     implicit rq: Request[JsValue] => {
       val body = rq.body
-      val data = body \ "data"
-
-      val typeAsOpt = (data \ "type").validate[String].asOpt.filter(_.equals(GroupType))
-      val groupAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
-
-      val validate = Seq(groupAsOpt, typeAsOpt).forall(_.isDefined)
-
-      if (validate) {
-        val group = StringContainer.apply[GroupField](groupAsOpt.get)
-        val model = GroupModel.apply(group)
-        Future {
-          val _ = groupService.add(model)
-          val resource = GroupResource(model)
-          val document = DocumentSingle(resource, Seq.empty[Resource])
-          val json = Json.toJson(document)
-          Created(json)
-        }
-      } else {
-        Future { BadRequest }
-      }
+      body
+        .validate[GroupResource]
+        .fold(
+          _ => Future { BadRequest },
+          groupResource => {
+            Future {
+              val model = groupResource.groupModel
+              groupService.add(model).fold[Result](InternalServerError)(_ => {
+                val resource = GroupResource(model)
+                val document = DocumentSingle(resource, Seq.empty[Resource])
+                val json = Json.toJson(document)
+                Created(json)
+              })
+            }
+          }
+        )
     }
   }
 
@@ -139,7 +141,7 @@ class GroupController @Inject()(cc: ControllerComponents,
     implicit request: Request[JsValue] => {
       val body = request.body
       val groupContainer = StringContainer[IdField](groupId) // wrapped group id
-      body.validate[UserResource].fold[Future[Result]](
+      (body \ "data").validate[UserResource].fold[Future[Result]](
         _ => Future { BadRequest },
         data => {
           val user = data.userModel
