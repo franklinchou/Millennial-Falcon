@@ -47,7 +47,8 @@ class UserControllerSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerT
       val resources = models.map(um => UserResource(um))
       val documents = DocumentMany(resources, Seq.empty[JsObject], JsObject.empty)
       val expected = Json.toJson(documents)
-      assert(content.equals(expected))
+
+      assert(expected.validate[JsObject].get.value == content.validate[JsObject].get.value)
     }
 
   }
