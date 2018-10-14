@@ -90,7 +90,7 @@ class GroupServiceJanus @Inject()(userService: UserService,
   }
 
 
-  // TODO Make safe
+  // TODO Make Option[Vertex], see #45
   def add(m: GroupModel): Vertex = {
     val result =
       jg
