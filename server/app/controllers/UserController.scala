@@ -145,6 +145,7 @@ class UserController @Inject()(cc: ControllerComponents,
             userService.removeGroup(userContainer)
 
             val groupName = StringContainer.apply[GroupField](gn)
+
             // TODO Will fail with 500 if group already exists
             val groupV = groupService.add(GroupModel.apply(groupName))
             groupService.associateExistingUser(userV, groupV)
