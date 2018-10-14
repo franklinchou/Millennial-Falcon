@@ -3,8 +3,8 @@ package controllers
 import javax.inject._
 import lib.StringContainer
 import lib.jsonapi.{DocumentMany, DocumentSingle, Resource}
-import models.field.IdField
-import models.vertex.GroupType
+import models.field.{GroupField, IdField}
+import models.vertex.GroupModel
 import play.api.libs.json._
 import play.api.mvc._
 import resources.{FeatureIdResource, GroupResource, UserResource}
@@ -120,10 +120,10 @@ class UserController @Inject()(cc: ControllerComponents,
       val data = body \ "data"
 
       // val typeAsOpt = (data \ "type").validate[String].asOpt.filter(_.equals(GroupType))
-      val groupAsOpt = (data \ "id").validate[String].asOpt
+      val groupIdAsOpt = (data \ "id").validate[String].asOpt
 
       val userContainer = StringContainer.apply[IdField](id)
-      val groupContainer = StringContainer.apply[IdField](groupAsOpt.get)
+      val groupContainer = StringContainer.apply[IdField](groupIdAsOpt.get)
 
       val userOpt = userService.findUserVertex(userContainer)
       val groupOpt = groupService.findVertex(groupContainer)
@@ -138,7 +138,15 @@ class UserController @Inject()(cc: ControllerComponents,
           val json = Json.toJson(document)
           Future { Ok(json) }
         case (Some(user), None) =>
-          Future { Created }
+          val groupNameAsOpt = (data \ "attributes" \ "group").validate[String].asOpt
+          val groupName = StringContainer.apply[GroupField](groupNameAsOpt.get)
+          val groupVertex = groupService.add(GroupModel.apply(groupName))
+          val _ = groupService.associateExistingUser(user, groupVertex)
+          val resource = UserResource(user)
+          val groupResource = GroupResource(groupVertex)
+          val document = DocumentSingle(resource, Seq(groupResource))
+          val json = Json.toJson(document)
+          Future { Created(json) }
         case (None, _) =>
           Future { NotFound }
       }

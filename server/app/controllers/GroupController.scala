@@ -117,7 +117,7 @@ class GroupController @Inject()(cc: ControllerComponents,
     * @param groupId
     * @return
     */
-  def associateUser(groupId: String) = Action(parse.tolerantJson).async {
+  def associateNewUser(groupId: String) = Action(parse.tolerantJson).async {
     implicit request: Request[JsValue] => {
       val body = request.body
       val groupContainer = StringContainer[IdField](groupId) // wrapped group id

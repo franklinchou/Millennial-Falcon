@@ -114,7 +114,7 @@ class UserServiceJanus @Inject()(featureService: FeatureService)
 
 
   /**
-    * Given a user model add the user to the graph
+    * Given a user model, add the user to the graph
     *
     * @param m
     * @return
