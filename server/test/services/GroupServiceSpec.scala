@@ -23,7 +23,7 @@ class GroupServiceSpec extends AsyncFunSpec {
 
       val groupId = mockGroup.id
       val addedGroup = groupService.add(mockGroup)
-      val result = groupService.associateUser(groupId, mockUserName)  // return the resulting user as vertex
+      val result = groupService.associateNewUser(groupId, mockUserName)  // return the resulting user as vertex
 
       val query = jg.V(addedGroup.id()).out().toList
 
