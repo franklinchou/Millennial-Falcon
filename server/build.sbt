@@ -7,7 +7,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.12.6"
 
-val janusVersion = "0.2.1"
+val janusVersion = "0.2.2"
 
 // TODO There is an error using 0.3.0 with "inmemory" cassandra database, causes "NoClassDefFound"
 // TODO error in org/apache/tinkerpop/gremlin/server/GraphManager
