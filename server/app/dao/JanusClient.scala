@@ -30,7 +30,7 @@ object JanusClient {
   Logger.info(setupMessage(env))
   EntitlementGraph.setUp(graph)
   val end = System.nanoTime()
-  val elapsed = Duration(end - start, NANOSECONDS).toMillis
+  val elapsed = Duration(end - start, MILLISECONDS)
   Logger.info(s"Graph setup complete after $elapsed milliseconds")
 
 
