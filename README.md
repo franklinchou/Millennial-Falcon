@@ -7,7 +7,7 @@ Just your basic ass, Starbucks drinking, social-media-consuming next-gen entitle
 
 1. Starting Cassandra:
 
-* `docker run --name cassandra-test -d cassandra:latest  # first time`
+* `docker run --name cassandra-test -d -p 9042:9042 cassandra:latest  # first time`
 * `docker start cassandra-test`
 
 2. Running Cassandra commands:
