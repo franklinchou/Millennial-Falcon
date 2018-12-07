@@ -31,7 +31,7 @@ object JanusClient {
   EntitlementGraph.setUp(graph)
   val end = System.nanoTime()
   val elapsed = Duration(end - start, MILLISECONDS)
-  Logger.info(s"Graph setup complete after $elapsed milliseconds")
+  Logger.info(s"Graph setup complete after $elapsed")
 
 
   val jg: GraphTraversalSource = graph.traversal()
