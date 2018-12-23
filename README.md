@@ -16,7 +16,7 @@ Drop directly into the cassandra shell:
 
 * `docker exec -it cassandra-test cqlsh`
 
-Alternaively, you can run a bash prompt with:
+Alternatively, you can run a bash prompt with:
 
 * `docker exec -it cassandra-test bash`
 
